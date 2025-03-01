@@ -1,0 +1,26 @@
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+* {
+    font-family: "Arial";
+}
+
+header {
+    margin-top: 86px !important;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.container-fluid.flex-grow-1 {
+    flex-grow: 1;
+}

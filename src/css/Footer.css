@@ -1,0 +1,7 @@
+footer {
+    background-color: #101010;
+
+    & .link-web {
+        font-size: 14px;
+    }
+}

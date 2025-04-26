@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { useRef } from "react";
 
-import "../../css/Header.css"
+import "../../css/Header.css";
 
 const Header = () => {
   const navRef = useRef(null);
@@ -15,7 +15,7 @@ const Header = () => {
   return (
     <header>
       <nav className="navbar navbar-expand-lg bg-da fixed-top">
-        <div className="container">
+        <div className="container-fluid">
           <Link className="navbar-brand" to="/">
             <img
               className="logoHeader"
@@ -35,22 +35,45 @@ const Header = () => {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className="collapse navbar-collapse" id="navbarNav" ref={navRef}>
-            <ul className="navbar-nav">
+            <ul className="navbar-nav ms-auto text-center">
+              <li className="nav-item">
+                <NavLink
+                  className="nav-link ps-3 pe-3"
+                  to="/login"
+                  onClick={handleNavLinkClick}
+                >
+                  Iniciar sesión
+                </NavLink>
+              </li>
               {[
                 "/",
+                "/Reservas",
+                "/Entregar",
+                "/Mi perfil / Usuarios",
+                "/Historial",
+                "/Reservar",
+                "/Mis reservas",
+                "/Mi perfil",
               ].map((path, index) => (
                 <li className="nav-item" key={index}>
                   <NavLink
                     className={({ isActive }) =>
-                      isActive ? "nav-link active" : "nav-link"
+                      isActive
+                        ? "nav-link active ps-3 pe-3"
+                        : "nav-link ps-3 pe-3"
                     }
                     to={path}
                     onClick={handleNavLinkClick}
                   >
-                    {path === "/" ? "Inicio" : path.slice(1)}
+                    {path === "/" ? "Cargar disponible" : path.slice(1)}
                   </NavLink>
                 </li>
               ))}
+              <li className="nav-item">
+                <button className="btn button-logout">
+                  Cerrar sesión
+                </button>
+              </li>
             </ul>
           </div>
         </div>

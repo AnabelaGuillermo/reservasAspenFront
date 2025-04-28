@@ -20,13 +20,13 @@ const LoginView = () => {
         </div>
 
         <div className="d-flex flex-row bg-dark p-4">
-          <div className="col-md-6 d-none d-md-flex align-items-center justify-content-center">
+          <div className="col-md-4 d-none d-md-flex align-items-center justify-content-center">
             <img src="/hondaForm.jpg" alt="Moto" className="img-fluid" />
           </div>
 
-          <div className="col-md-6 d-flex flex-column justify-content-center p-3">
+          <div className="col-md-8 d-flex flex-column justify-content-center p-3">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="mb-3">
+              <div className="mb-3 text-center">
                 <label className="form-label text-white">E-MAIL</label>
                 <input
                   type="email"
@@ -40,7 +40,7 @@ const LoginView = () => {
                 )}
               </div>
 
-              <div className="mb-3">
+              <div className="mb-3 text-center">
                 <label className="form-label text-white">CONTRASEÑA</label>
                 <input
                   type="password"
@@ -57,7 +57,7 @@ const LoginView = () => {
                   </div>
                 )}
               </div>
-              <button type="submit" className="btn btn-danger w-100">
+              <button type="submit" className="btn btn-danger w-100 mt-2">
                 INICIAR SESIÓN
               </button>
             </form>

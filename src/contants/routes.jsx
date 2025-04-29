@@ -33,7 +33,7 @@ export const router = createBrowserRouter([
                 element: <DeliverView />,
             },
             {
-                path: "Mi perfil / Usuarios",
+                path: "Usuarios",
                 element: <UsersView />,
             },
             {

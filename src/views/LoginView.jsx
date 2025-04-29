@@ -1,5 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useSession } from "../stores/useSession";
 
 const LoginView = () => {
   const {
@@ -7,9 +9,42 @@ const LoginView = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const navigate = useNavigate();
+  const { login } = useSession();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log("Inicio de sesión exitoso:", result);
+
+        login(result.user, result.token);
+
+        if (result.user?.isAdmin) {
+          navigate("/Reservas");
+        } else {
+          navigate("/Reservar");
+        }
+      } else {
+        console.error("Error al iniciar sesión:", result);
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error("Error de red:", error);
+      alert("Error de red al iniciar sesión");
+    }
   };
 
   return (

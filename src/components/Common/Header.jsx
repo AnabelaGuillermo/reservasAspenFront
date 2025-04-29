@@ -4,14 +4,11 @@ import Swal from "sweetalert2";
 import { useSession } from "../../stores/useSession";
 import "../../css/Header.css";
 
-
-
 const Header = () => {
   const { user, isLoggedIn, logout } = useSession();
   const navRef = useRef();
   const navigate = useNavigate();
 
-  // Redirigir al login si no está logueado
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/login");
@@ -39,14 +36,14 @@ const Header = () => {
 
   const isAdmin = user ? user.isAdmin : false;
 
-  console.log("isLoggedIn:", isLoggedIn);
-console.log("user:", user);
-
   return (
     <header>
       <nav className="navbar navbar-expand-lg bg-da fixed-top">
         <div className="container-fluid">
-          <Link className="navbar-brand" to={isAdmin ? "/admin" : "/Reservar"}>
+          <Link
+            className="navbar-brand"
+            to={isAdmin ? "/Available" : "/Reservar"}
+          >
             <img
               className="logoHeader"
               src="/Logo_Aspen.png"
@@ -68,8 +65,6 @@ console.log("user:", user);
 
           <div className="collapse navbar-collapse" id="navbarNav" ref={navRef}>
             <ul className="navbar-nav ms-auto text-center">
-
-              {/* Botón Login visible siempre */}
               {!isLoggedIn && (
                 <li className="nav-item">
                   <NavLink className="nav-link ps-3 pe-3" to="/login">
@@ -78,11 +73,10 @@ console.log("user:", user);
                 </li>
               )}
 
-              {/* Rutas para Admin */}
               {isLoggedIn && isAdmin && (
                 <>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/admin">
+                    <NavLink className="nav-link ps-3 pe-3" to="/Available">
                       Cargar disponible
                     </NavLink>
                   </li>
@@ -98,7 +92,7 @@ console.log("user:", user);
                   </li>
                   <li className="nav-item">
                     <NavLink className="nav-link ps-3 pe-3" to="/Usuarios">
-                      Mi Perfil / Usuarios
+                      Usuarios
                     </NavLink>
                   </li>
                   <li className="nav-item">
@@ -109,7 +103,6 @@ console.log("user:", user);
                 </>
               )}
 
-              {/* Rutas para Usuarios No Admin */}
               {isLoggedIn && !isAdmin && (
                 <>
                   <li className="nav-item">
@@ -130,13 +123,9 @@ console.log("user:", user);
                 </>
               )}
 
-              {/* Botón Logout visible solo si hay sesión */}
               {isLoggedIn && (
                 <li className="nav-item">
-                  <button
-                    className="btn button-logout"
-                    onClick={handleLogout}
-                  >
+                  <button className="btn button-logout" onClick={handleLogout}>
                     Cerrar sesión
                   </button>
                 </li>

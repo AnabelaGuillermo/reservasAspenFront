@@ -12,50 +12,50 @@ import MyProfileView from "../views/MyProfileView";
 import Error404View from "../views/Error404View";
 
 export const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <RootView />,
-        children: [
-            {
-                path: "/login",
-                element: <LoginView />,
-            },
-            {
-                path: "/",
-                element: <AvailableView />,
-            },
-            {
-                path: "Reservas",
-                element: <ReservationsView />,
-            },
-            {
-                path: "Entregar",
-                element: <DeliverView />,
-            },
-            {
-                path: "Usuarios",
-                element: <UsersView />,
-            },
-            {
-                path: "Historial",
-                element: <RecordView />,
-            },
-            {
-                path: "Reservar",
-                element: <ReserveView />,
-            },
-            {
-                path: "Mis reservas",
-                element: <MyReservationsView />,
-            },
-            {
-                path: "Mi perfil",
-                element: <MyProfileView />,
-            },
-            {
-                path: "*",
-                element: <Error404View />,
-            },
-        ],
-    },
+  {
+    path: "/",
+    element: <RootView />,
+    children: [
+      {
+        path: "/login",
+        element: <LoginView />,
+      },
+      {
+        path: "/Available",
+        element: <AvailableView />,
+      },
+      {
+        path: "/Reservas",
+        element: <ReservationsView />,
+      },
+      {
+        path: "/Entregar",
+        element: <DeliverView />,
+      },
+      {
+        path: "/Usuarios",
+        element: <UsersView />,
+      },
+      {
+        path: "/Historial",
+        element: <RecordView />,
+      },
+      {
+        path: "/Reservar",
+        element: <ReserveView />,
+      },
+      {
+        path: "/Mis reservas",
+        element: <MyReservationsView />,
+      },
+      {
+        path: "/Mi perfil",
+        element: <MyProfileView />,
+      },
+      {
+        path: "*",
+        element: <Error404View />,
+      },
+    ],
+  },
 ]);

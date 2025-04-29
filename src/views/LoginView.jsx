@@ -1,5 +1,22 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useSession } from "../stores/useSession";
+
+const decodeJwtPayload = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload).user;
+  } catch (error) {
+    console.error("Error al decodificar el JWT:", error);
+    return null;
+  }
+};
 
 const LoginView = () => {
   const {
@@ -7,9 +24,48 @@ const LoginView = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const navigate = useNavigate();
+  const { login } = useSession();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        const token = result.data;
+        const decodedUser = decodeJwtPayload(token);
+
+        if (decodedUser) {
+          login(decodedUser, token);
+
+          if (decodedUser?.isAdmin) {
+            navigate("/Available");
+          } else {
+            navigate("/Reservar");
+          }
+        } else {
+          console.error("Error: No se pudo decodificar la información del usuario del JWT.");
+          alert("Error al iniciar sesión: No se pudo obtener la información del usuario.");
+        }
+      } else {
+        console.error("Error al iniciar sesión:", result);
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error("Error de red:", error);
+      alert("Error de red al iniciar sesión");
+    }
   };
 
   return (
@@ -44,9 +100,7 @@ const LoginView = () => {
                 <label className="form-label text-white">CONTRASEÑA</label>
                 <input
                   type="password"
-                  className={`form-control ${
-                    errors.password ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.password ? "is-invalid" : ""}`}
                   {...register("password", {
                     required: "La contraseña es obligatoria",
                   })}

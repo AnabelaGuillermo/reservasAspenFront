@@ -5,11 +5,17 @@ import { useSession } from "../stores/useSession";
 
 const decodeJwtPayload = (token) => {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
 
     return JSON.parse(jsonPayload).user;
   } catch (error) {
@@ -43,8 +49,14 @@ const LoginView = () => {
       const result = await response.json();
 
       if (response.ok) {
-        const token = result.data;
+        const token = result.accessToken;
         const decodedUser = decodeJwtPayload(token);
+
+        if (!token) {
+          console.error("Token no recibido del servidor.");
+          alert("Error al iniciar sesión: token no recibido.");
+          return;
+        }
 
         if (decodedUser) {
           login(decodedUser, token);
@@ -55,8 +67,12 @@ const LoginView = () => {
             navigate("/Reservar");
           }
         } else {
-          console.error("Error: No se pudo decodificar la información del usuario del JWT.");
-          alert("Error al iniciar sesión: No se pudo obtener la información del usuario.");
+          console.error(
+            "Error: No se pudo decodificar la información del usuario del JWT."
+          );
+          alert(
+            "Error al iniciar sesión: No se pudo obtener la información del usuario."
+          );
         }
       } else {
         console.error("Error al iniciar sesión:", result);
@@ -100,7 +116,9 @@ const LoginView = () => {
                 <label className="form-label text-white">CONTRASEÑA</label>
                 <input
                   type="password"
-                  className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    errors.password ? "is-invalid" : ""
+                  }`}
                   {...register("password", {
                     required: "La contraseña es obligatoria",
                   })}

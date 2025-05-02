@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
 const AvailableView = () => {
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [available, setAvailable] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [newQuantity, setNewQuantity] = useState("");
 
   const API_URL = import.meta.env.VITE_BACKEND_URL + "/api/v1/motos";
-
   const token = localStorage.getItem("token");
 
   const fetchAvailable = async () => {
@@ -65,33 +67,56 @@ const AvailableView = () => {
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = confirm("¿Seguro que deseas eliminar este producto?");
-    if (!confirmDelete) return;
+    const result = await Swal.fire({
+      title: "¡Atención!",
+      text: "Este producto puede estar relacionado con un historial o reservas, ¿Estás seguro que deseas eliminarlo?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#28a745",
+      cancelButtonColor: "#dc3545",
+    });
 
-    try {
-      const res = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.message || "Error al eliminar moto");
-        return;
+        if (!res.ok) {
+          alert(data.message || "Error al eliminar moto");
+          return;
+        }
+
+        fetchAvailable();
+        Swal.fire(
+          "Eliminado",
+          "El producto ha sido eliminado correctamente.",
+          "success"
+        );
+      } catch (error) {
+        console.error("Error al eliminar moto", error);
+        Swal.fire(
+          "Error",
+          "Hubo un problema al eliminar el producto.",
+          "error"
+        );
       }
-
-      fetchAvailable();
-    } catch (error) {
-      console.error("Error al eliminar moto", error);
     }
   };
 
-  const handleEditQuantity = async (id, currentQuantity) => {
-    const newQuantity = prompt("Ingrese la nueva cantidad:", currentQuantity);
-    if (newQuantity === null) return;
+  const handleEditQuantity = (id, currentQuantity) => {
+    setEditingId(id);
+    setNewQuantity(currentQuantity);
+  };
+
+  const handleSaveQuantity = async (id) => {
     if (isNaN(newQuantity) || newQuantity < 0) {
       alert("Debe ingresar un número válido");
       return;
@@ -114,6 +139,8 @@ const AvailableView = () => {
         return;
       }
 
+      setEditingId(null);
+      setNewQuantity("");
       fetchAvailable();
     } catch (error) {
       console.error("Error al actualizar cantidad", error);
@@ -175,8 +202,8 @@ const AvailableView = () => {
           <thead>
             <tr>
               <th>PRODUCTO / MOTO</th>
-              <th>CANTIDAD</th>
-              <th>ACCIONES</th>
+              <th className="text-center">CANTIDAD</th>
+              <th className="text-end">ACCIONES</th>
             </tr>
           </thead>
 
@@ -185,16 +212,36 @@ const AvailableView = () => {
               available.map((moto) => (
                 <tr key={moto._id}>
                   <td>{moto.name}</td>
-                  <td>{moto.quantity}</td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() =>
-                        handleEditQuantity(moto._id, moto.quantity)
-                      }
-                    >
-                      Editar
-                    </button>
+                  <td className="text-center">
+                    {editingId === moto._id ? (
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={newQuantity}
+                        onChange={(e) => setNewQuantity(e.target.value)}
+                      />
+                    ) : (
+                      moto.quantity
+                    )}
+                  </td>
+                  <td className="text-end">
+                    {editingId === moto._id ? (
+                      <button
+                        className="btn btn-sm btn-success me-2"
+                        onClick={() => handleSaveQuantity(moto._id)}
+                      >
+                        Guardar
+                      </button>
+                    ) : (
+                      <button
+                        className="btn btn-sm btn-warning me-2"
+                        onClick={() =>
+                          handleEditQuantity(moto._id, moto.quantity)
+                        }
+                      >
+                        Editar
+                      </button>
+                    )}
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDelete(moto._id)}

@@ -144,7 +144,6 @@ const ReserveView = () => {
   return (
     <div className="container py-4">
       <h3 className="text-center mb-4">DISPONIBLE PARA RESERVAR</h3>
-
       <div className="table-responsive mb-4">
         <table className="table table-striped">
           <thead>

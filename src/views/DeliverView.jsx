@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 
+const DELAY_TIEMPO_ENTREGADO = 300000;
+const LOCAL_STORAGE_KEY = "entregadosRecientemente";
+
 const DeliverView = () => {
   const [reservasPendientes, setReservasPendientes] = useState([]);
   const [entregadosRecientemente, setEntregadosRecientemente] = useState([]);
@@ -11,6 +14,7 @@ const DeliverView = () => {
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
 
   const fetchReservasPendientes = async () => {
+    console.log("fetchReservasPendientes ejecutándose...");
     setLoading(true);
     setError(null);
     try {
@@ -24,7 +28,14 @@ const DeliverView = () => {
         throw new Error(`Error HTTP: ${res.status}`);
       }
       const data = await res.json();
-      setReservasPendientes(data.data || []);
+      const entregadosIds = entregadosRecientemente.map(
+        (entregado) => entregado._id
+      );
+      const pendientesFiltradas = (data.data || []).filter(
+        (reserva) => !entregadosIds.includes(reserva._id)
+      );
+      console.log("Reservas pendientes obtenidas:", pendientesFiltradas);
+      setReservasPendientes(pendientesFiltradas);
     } catch (err) {
       console.error("Error al obtener las reservas pendientes", err);
       setError("Error al cargar las reservas pendientes.");
@@ -34,10 +45,64 @@ const DeliverView = () => {
   };
 
   useEffect(() => {
-    fetchReservasPendientes();
+    console.log(
+      "Primer useEffect (montaje y carga inicial de entregados) ejecutándose..."
+    );
+    const cargarEntregados = () => {
+      const storedEntregados = localStorage.getItem(LOCAL_STORAGE_KEY);
+      let initialEntregados = [];
+      if (storedEntregados) {
+        initialEntregados = JSON.parse(storedEntregados).filter((entregado) => {
+          const tiempoTranscurrido =
+            Date.now() - new Date(entregado.fechaEntrega).getTime();
+          return tiempoTranscurrido < DELAY_TIEMPO_ENTREGADO;
+        });
+      }
+      setEntregadosRecientemente(initialEntregados);
+      console.log("Entregados cargados de localStorage:", initialEntregados);
+    };
+
+    cargarEntregados();
+    console.log(
+      "Primer useEffect (montaje y carga inicial de entregados) terminado."
+    );
   }, []);
 
+  useEffect(() => {
+    console.log(
+      "Segundo useEffect (recarga de pendientes al cambiar entregadosRecientemente) ejecutándose...",
+      entregadosRecientemente
+    );
+    fetchReservasPendientes();
+    console.log(
+      "Segundo useEffect (recarga de pendientes al cambiar entregadosRecientemente) terminado."
+    );
+  }, [entregadosRecientemente]);
+
+  useEffect(() => {
+    console.log(
+      "Tercer useEffect (seguimiento de entregadosRecientemente para eliminación) ejecutándose...",
+      entregadosRecientemente
+    );
+    entregadosRecientemente.forEach((reserva) => {
+      const tiempoRestante =
+        DELAY_TIEMPO_ENTREGADO -
+        (Date.now() - new Date(reserva.fechaEntrega).getTime());
+      if (tiempoRestante > 0) {
+        const timeoutId = setTimeout(() => {
+          eliminarReservaDefinitivamente(reserva._id);
+        }, tiempoRestante);
+      } else {
+        eliminarReservaDefinitivamente(reserva._id);
+      }
+    });
+    console.log(
+      "Tercer useEffect (seguimiento de entregadosRecientemente para eliminación) terminado."
+    );
+  }, [entregadosRecientemente]);
+
   const handleEntregarReserva = async (id) => {
+    console.log("handleEntregarReserva ejecutándose para ID:", id);
     Swal.fire({
       title: "¿Entregar reserva?",
       text: "¿Estás seguro de que deseas marcar esta reserva como entregada?",
@@ -50,9 +115,10 @@ const DeliverView = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await fetch(`${API_URL_RESERVAS}/${id}`, {
-            method: "DELETE",
+          const res = await fetch(`${API_URL_RESERVAS}/${id}/entregar`, {
+            method: "PUT",
             headers: {
+              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           });
@@ -71,17 +137,22 @@ const DeliverView = () => {
           setReservasPendientes(
             reservasPendientes.filter((reserva) => reserva._id !== id)
           );
+          const nuevaReservaEntregada = {
+            ...reservaEntregada,
+            fechaEntrega: new Date().toISOString(),
+          };
           setEntregadosRecientemente((prevEntregados) => [
             ...prevEntregados,
-            { ...reservaEntregada, entregadoEn: Date.now() },
+            nuevaReservaEntregada,
           ]);
-          setTimeout(() => {
-            setEntregadosRecientemente((prev) =>
-              prev.filter(
-                (entregado) => Date.now() - entregado.entregadoEn < 300000
-              )
-            );
-          }, 300000);
+          const storedEntregados =
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
+          const entregados = JSON.parse(storedEntregados);
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY,
+            JSON.stringify([...entregados, nuevaReservaEntregada])
+          );
+          console.log("Reserva entregada, estados actualizados.");
         } catch (error) {
           console.error("Error al entregar la reserva", error);
           Swal.fire(
@@ -94,9 +165,8 @@ const DeliverView = () => {
     });
   };
 
-  const handleDeshacerEntrega = (reserva) => {
-    console.log("Reserva a deshacer:", reserva);
-
+  const handleDeshacerEntrega = async (reserva) => {
+    console.log("handleDeshacerEntrega ejecutándose para ID:", reserva._id);
     Swal.fire({
       title: "¿Deshacer entrega?",
       text: "¿Estás seguro de que deseas deshacer la entrega de esta reserva?",
@@ -116,14 +186,7 @@ const DeliverView = () => {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              motoId: reserva.motoId?._id || reserva.motoId,
-              fecha: reserva.fecha,
-              hora: reserva.hora,
-              recibo: reserva.recibo,
-              numeroComanda: reserva.numeroComanda,
-              cliente: reserva.cliente,
-              observaciones: reserva.observaciones,
-              userId: reserva.userId?._id || reserva.userId,
+              _id: reserva._id,
             }),
           });
           if (!res.ok) {
@@ -135,12 +198,18 @@ const DeliverView = () => {
             "La entrega ha sido deshecha y la reserva ha vuelto a la lista.",
             "success"
           );
-          setEntregadosRecientemente(
-            entregadosRecientemente.filter(
-              (entregado) => entregado._id !== reserva._id
-            )
+          setEntregadosRecientemente((prev) =>
+            prev.filter((entregado) => entregado._id !== reserva._id)
+          );
+          const storedEntregados =
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
+          const entregados = JSON.parse(storedEntregados);
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY,
+            JSON.stringify(entregados.filter((e) => e._id !== reserva._id))
           );
           fetchReservasPendientes();
+          console.log("Entrega deshecha, estados actualizados.");
         } catch (error) {
           console.error("Error al deshacer la entrega", error);
           Swal.fire(
@@ -151,6 +220,37 @@ const DeliverView = () => {
         }
       }
     });
+  };
+
+  const eliminarReservaDefinitivamente = async (id) => {
+    console.log("eliminarReservaDefinitivamente ejecutándose para ID:", id);
+    try {
+      const res = await fetch(`${API_URL_RESERVAS}/entregadas/${id}/mover`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        setEntregadosRecientemente((prev) =>
+          prev.filter((entregado) => entregado._id !== id)
+        );
+        const storedEntregados =
+          localStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
+        const entregados = JSON.parse(storedEntregados);
+        localStorage.setItem(
+          LOCAL_STORAGE_KEY,
+          JSON.stringify(entregados.filter((e) => e._id !== id))
+        );
+        fetchReservasPendientes();
+        console.log("Reserva eliminada definitivamente.");
+      } else {
+        console.error("Error al mover la reserva entregada al backend");
+      }
+    } catch (error) {
+      console.error("Error al mover la reserva entregada", error);
+    }
   };
 
   if (loading) {
@@ -189,9 +289,7 @@ const DeliverView = () => {
               <tr key={reserva._id}>
                 <td>{new Date(reserva.fecha).toLocaleDateString()}</td>
                 <td>{reserva.userId?.fullname}</td>
-                <td>
-                  {reserva.motoId?.name}
-                </td>
+                <td>{reserva.motoId?.name}</td>
                 <td>{reserva.numeroComanda}</td>
                 <td>{reserva.recibo}</td>
                 <td>{reserva.cliente}</td>
@@ -237,11 +335,13 @@ const DeliverView = () => {
             entregadosRecientemente.map((reserva) => (
               <tr key={reserva._id}>
                 <td>{new Date(reserva.fecha).toLocaleDateString()}</td>
-                <td>{new Date(reserva.entregadoEn).toLocaleDateString()}</td>
+                <td>{new Date(reserva.fechaEntrega).toLocaleDateString()}</td>
                 <td>{reserva.userId?.fullname || "N/A"}</td>
                 <td>
-                  {reserva.motoId?.name || "N/A"} /{" "}
-                  {reserva.motoId?.patente || "N/A"}
+                  {reserva.motoId?.name || "N/A"}
+                  {reserva.motoId?.patente
+                    ? ` / ${reserva.motoId.patente}`
+                    : ""}
                 </td>
                 <td>{reserva.numeroComanda}</td>
                 <td>{reserva.recibo}</td>

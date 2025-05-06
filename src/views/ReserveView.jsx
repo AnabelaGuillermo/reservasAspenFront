@@ -67,7 +67,11 @@ const ReserveView = () => {
 
     try {
       const now = new Date();
-      const fechaActual = now.toISOString().split("T")[0];
+      const fechaActual = now
+        .toLocaleDateString("es-AR")
+        .split("/")
+        .reverse()
+        .join("-");
       const horaActual = now.toLocaleTimeString("es-AR", {
         hour: "2-digit",
         minute: "2-digit",

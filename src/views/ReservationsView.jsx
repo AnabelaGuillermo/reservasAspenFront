@@ -10,7 +10,8 @@ const ReservationsView = () => {
   const [error, setError] = useState(null);
   const [editingReservationId, setEditingReservationId] = useState(null);
   const [editedObservations, setEditedObservations] = useState("");
-  const [isAddingManualReservation, setIsAddingManualReservation] = useState(false);
+  const [isAddingManualReservation, setIsAddingManualReservation] =
+    useState(false);
   const [newReservation, setNewReservation] = useState({
     userId: "",
     motoId: "",
@@ -20,7 +21,8 @@ const ReservationsView = () => {
     observaciones: "",
   });
 
-  const API_URL_RESERVAS = import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
+  const API_URL_RESERVAS =
+    import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
   const API_URL_USERS = import.meta.env.VITE_BACKEND_URL + "/api/v1/users";
   const API_URL_MOTOS = import.meta.env.VITE_BACKEND_URL + "/api/v1/motos";
   const token = localStorage.getItem("token");
@@ -59,6 +61,16 @@ const ReservationsView = () => {
       }
       const data = await res.json();
       setUsers(data.data || []);
+
+      console.log(
+        "Usuarios cargados para el selector (VERIFICAR ESTRUCTURA):",
+        data.data
+      );
+      if (data.data && data.data.length > 0) {
+        console.log("Ejemplo de primer usuario cargado:", data.data[0]);
+        console.log("Tipo de _id del primer usuario:", typeof data.data[0]._id);
+        console.log("Fullname del primer usuario:", data.data[0].fullname);
+      }
     } catch (err) {
       console.error("Error al obtener los vendedores:", err);
       Swal.fire({
@@ -68,6 +80,12 @@ const ReservationsView = () => {
       });
     }
   };
+
+  useEffect(() => {
+    fetchReservations();
+    fetchNonAdminUsers();
+    fetchAvailableMotos();
+  }, []);
 
   const fetchAvailableMotos = async () => {
     try {
@@ -155,7 +173,6 @@ const ReservationsView = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // 1. Eliminar la reserva
           const deleteRes = await fetch(`${API_URL_RESERVAS}/${id}`, {
             method: "DELETE",
             headers: {
@@ -172,14 +189,16 @@ const ReservationsView = () => {
             return;
           }
 
-          // 2. Devolver el stock de la moto
-          const updateMotoRes = await fetch(`${API_URL_MOTOS}/${motoId}/incrementStock`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const updateMotoRes = await fetch(
+            `${API_URL_MOTOS}/${motoId}/incrementStock`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
           const updateMotoData = await updateMotoRes.json();
           if (!updateMotoRes.ok) {
             console.error("Error al devolver el stock:", updateMotoData);
@@ -198,7 +217,10 @@ const ReservationsView = () => {
 
           fetchReservations();
         } catch (err) {
-          console.error("Error al eliminar la reserva y devolver el stock:", err);
+          console.error(
+            "Error al eliminar la reserva y devolver el stock:",
+            err
+          );
           Swal.fire({
             icon: "error",
             title: "Error",
@@ -223,10 +245,34 @@ const ReservationsView = () => {
 
   const handleManualReservationInputChange = (e) => {
     const { name, value } = e.target;
-    setNewReservation((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    console.log(`Input change - Name: ${name}, Raw Value: ${value}`); // Valor crudo del input
+
+    if (name === "userId") {
+      let selectedUserId = value;
+
+      if (!/^[0-9a-fA-F]{24}$/.test(value)) {
+        console.warn(
+          `Valor de userId no es un ObjectId válido: ${value}. Intentando buscar por fullname.`
+        );
+        const foundUser = users.find((user) => user.fullname === value);
+        if (foundUser) {
+          selectedUserId = foundUser._id;
+          console.log(`Encontrado _id para ${value}: ${selectedUserId}`);
+        } else {
+          console.error(`No se encontró un usuario con el fullname: ${value}`);
+          selectedUserId = "";
+        }
+      }
+      setNewReservation((prevState) => ({
+        ...prevState,
+        userId: selectedUserId,
+      }));
+    } else {
+      setNewReservation((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
 
   const handleConfirmManualReservation = async () => {
@@ -240,17 +286,33 @@ const ReservationsView = () => {
       Swal.fire({
         icon: "warning",
         title: "¡Atención!",
-        text: "Por favor, completa todos los campos para la reserva manual.",
+        text: "Por favor, completa todos los campos obligatorios para la reserva manual.",
       });
       return;
     }
 
+    console.log("Datos a enviar para la nueva reserva:", newReservation);
+    console.log(
+      "ID de Vendedor a enviar (antes de fetch):",
+      newReservation.userId
+    );
+
     try {
       const now = new Date();
-      const fechaActual = now.toLocaleDateString("es-AR").split("/").reverse().join("-");
+      const fechaActual = now
+        .toLocaleDateString("es-AR", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .split("/")
+        .reverse()
+        .join("-");
       const horaActual = now.toLocaleTimeString("es-AR", {
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
       });
 
       const res = await fetch(API_URL_RESERVAS, {
@@ -353,7 +415,10 @@ const ReservationsView = () => {
                         >
                           Guardar
                         </button>
-                        <button className="btn btn-sm btn-secondary" onClick={handleCancelEdit}>
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          onClick={handleCancelEdit}
+                        >
                           Cancelar
                         </button>
                       </div>
@@ -373,7 +438,9 @@ const ReservationsView = () => {
                   )}
                   <button
                     className="btn btn-sm btn-danger"
-                    onClick={() => handleDeleteReservation(reserva._id, reserva.motoId._id)}
+                    onClick={() =>
+                      handleDeleteReservation(reserva._id, reserva.motoId._id)
+                    }
                   >
                     Eliminar
                   </button>
@@ -394,7 +461,10 @@ const ReservationsView = () => {
       <h3 className="text-center mt-4">Añadir Reserva Manual</h3>
       {!isAddingManualReservation ? (
         <div className="d-flex justify-content-center">
-          <button className="btn btn-success" onClick={handleAddManualReservationClick}>
+          <button
+            className="btn btn-success"
+            onClick={handleAddManualReservationClick}
+          >
             Añadir Reserva Manual
           </button>
         </div>
@@ -490,10 +560,16 @@ const ReservationsView = () => {
             />
           </div>
           <div className="d-flex justify-content-end gap-2">
-            <button className="btn btn-primary" onClick={handleConfirmManualReservation}>
+            <button
+              className="btn btn-primary"
+              onClick={handleConfirmManualReservation}
+            >
               Añadir Reserva
             </button>
-            <button className="btn btn-secondary" onClick={handleCancelManualReservation}>
+            <button
+              className="btn btn-secondary"
+              onClick={handleCancelManualReservation}
+            >
               Cancelar
             </button>
           </div>

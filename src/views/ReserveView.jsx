@@ -12,11 +12,42 @@ const ReserveView = () => {
   const [observaciones, setObservaciones] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [loggedInUserId, setLoggedInUserId] = useState(null);
 
   const API_URL_MOTOS = import.meta.env.VITE_BACKEND_URL + "/api/v1/motos";
   const API_URL_RESERVAS =
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
   const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const userInfo = localStorage.getItem("user");
+    if (userInfo) {
+      try {
+        const user = JSON.parse(userInfo);
+        if (user && user._id) {
+          setLoggedInUserId(user._id);
+        } else {
+          console.warn("User info found but _id is missing:", user);
+          Swal.fire({
+            icon: "warning",
+            title: "Advertencia",
+            text: "No se pudo obtener el ID de usuario. Por favor, asegúrate de haber iniciado sesión correctamente.",
+          });
+        }
+      } catch (e) {
+        console.error("Error parsing user info from localStorage", e);
+        Swal.fire({
+          icon: "error",
+          title: "Error de Sesión",
+          text: "Hubo un problema al cargar tu información de usuario. Por favor, intenta recargar la página o iniciar sesión de nuevo.",
+        });
+      }
+    } else {
+      console.warn("No user info found in localStorage.");
+    }
+
+    fetchAvailableMotos();
+  }, []);
 
   const fetchAvailableMotos = async () => {
     setLoading(true);
@@ -35,10 +66,6 @@ const ReserveView = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchAvailableMotos();
-  }, []);
 
   const handleReservarClick = (moto) => {
     setSelectedMotoToReserve(moto);
@@ -60,7 +87,16 @@ const ReserveView = () => {
       Swal.fire({
         icon: "warning",
         title: "¡Atención!",
-        text: "Por favor, completa todos los campos para confirmar la reserva.",
+        text: "Por favor, completa todos los campos requeridos (Recibo, Número de Comanda, Cliente).",
+      });
+      return;
+    }
+
+    if (!loggedInUserId) {
+      Swal.fire({
+        icon: "error",
+        title: "Error de Sesión",
+        text: "No se pudo obtener el ID del usuario logueado. Por favor, intenta iniciar sesión nuevamente o recarga la página.",
       });
       return;
     }
@@ -84,6 +120,7 @@ const ReserveView = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+          userId: loggedInUserId,
           motoId: selectedMotoToReserve._id,
           recibo,
           numeroComanda,
@@ -122,7 +159,7 @@ const ReserveView = () => {
       Swal.fire({
         icon: "error",
         title: "¡Error!",
-        text: "Hubo un problema al intentar realizar la reserva.",
+        text: "Hubo un problema al intentar realizar la reserva. Revisa la consola para más detalles.",
       });
     }
   };

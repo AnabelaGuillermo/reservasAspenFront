@@ -1,0 +1,104 @@
+import React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useNavigate, useParams } from "react-router-dom";
+
+const ResetPasswordView = () => {
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const newPassword = watch("password");
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/reset-password/${token}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password: data.password }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(result.message);
+        navigate("/login");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("Error de red:", error);
+      toast.error("Error de red al restablecer la contraseña.");
+    }
+  };
+
+  return (
+    <div className="container d-flex flex-column align-items-center justify-content-center bg-white mt-5">
+      <div className="text-center mb-4">
+        <h2>RESTABLECER CONTRASEÑA</h2>
+        <p>Ingresa tu nueva contraseña.</p>
+      </div>
+
+      <div className="d-flex flex-row bg-dark p-4">
+        <div className="col-md-4 d-none d-md-flex align-items-center justify-content-center">
+          <img src="/hondaForm.jpg" alt="Moto" className="img-fluid" />
+        </div>
+
+        <div className="col-md-8 d-flex flex-column justify-content-center p-3">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="mb-3 text-center">
+              <label className="form-label text-white">NUEVA CONTRASEÑA</label>
+              <input
+                type="password"
+                className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                {...register("password", {
+                  required: "La nueva contraseña es obligatoria",
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])([A-Za-z\d$@$!%*?&]|[^ ]){8,15}$/,
+                    message:
+                      "La contraseña debe tener entre 8 y 15 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.",
+                  },
+                })}
+              />
+              {errors.password && (
+                <div className="invalid-feedback">{errors.password.message}</div>
+              )}
+            </div>
+            <div className="mb-3 text-center">
+              <label className="form-label text-white">REPETIR CONTRASEÑA</label>
+              <input
+                type="password"
+                className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+                {...register("confirmPassword", {
+                  required: "Confirmar la contraseña es obligatorio",
+                  validate: (value) =>
+                    value === newPassword || "Las contraseñas no coinciden",
+                })}
+              />
+              {errors.confirmPassword && (
+                <div className="invalid-feedback">
+                  {errors.confirmPassword.message}
+                </div>
+              )}
+            </div>
+            <button type="submit" className="btn btn-danger w-100 mt-2">
+              RESTABLECER CONTRASEÑA
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ResetPasswordView;

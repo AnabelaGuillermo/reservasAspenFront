@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Importar Link
 import { useSession } from "../stores/useSession";
 
 const decodeJwtPayload = (token) => {
@@ -136,9 +136,10 @@ const LoginView = () => {
           </div>
         </div>
         <div className="mt-3">
-          <a href="/*" className="text-danger fw-bold text-decoration-none">
+          {/* Aquí se agregó el Link para ir a la vista de recuperar contraseña */}
+          <Link to="/forgot-password" className="text-danger fw-bold text-decoration-none">
             ¿No recuerdas tu contraseña? Hacé click aquí
-          </a>
+          </Link>
         </div>
       </div>
     </>

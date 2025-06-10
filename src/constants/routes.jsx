@@ -17,13 +17,22 @@ import ResetPasswordView from "../views/ResetPasswordView";
 
 export const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <LoginView />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPasswordView />,
+  },
+  {
+    path: "/reset-password/:token",
+    element: <ResetPasswordView />,
+  },
+  {
     path: "/",
     element: <RootView />,
     children: [
       { path: "/", element: <HomeRedirectView /> },
-      { path: "/login", element: <LoginView /> },
-      { path: "/forgot-password", element: <ForgotPasswordView /> },
-      { path: "/reset-password/:token", element: <ResetPasswordView /> },
       {
         path: "/Available",
         element: (
@@ -88,7 +97,7 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      { path: "*", element: <Error404View /> },
     ],
   },
+  { path: "*", element: <Error404View /> },
 ]);

@@ -1,8 +1,9 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, Link } from "react-router-dom"; // Importar Link
+import { useNavigate, Link } from "react-router-dom";
 import { useSession } from "../stores/useSession";
-
+import SimpleHeader from "../components/CommonLogin/HeaderLogin";
+import Footer from "../components/Common/Footer";
 const decodeJwtPayload = (token) => {
   try {
     const base64Url = token.split(".")[1];
@@ -85,12 +86,12 @@ const LoginView = () => {
   };
 
   return (
-    <>
-      <div className="container d-flex flex-column align-items-center justify-content-center bg-white mt-5">
+    <div className="d-flex flex-column min-vh-100">
+      <SimpleHeader />
+      <div className="container d-flex flex-column align-items-center justify-content-center bg-white mt-5 flex-grow-1">
         <div className="text-center mb-4">
           <h2>INGRESÁ CON TU E-MAIL Y CONTRASEÑA</h2>
         </div>
-
         <div className="d-flex flex-row bg-dark p-4">
           <div className="col-md-4 d-none d-md-flex align-items-center justify-content-center">
             <img src="/hondaForm.jpg" alt="Moto" className="img-fluid" />
@@ -136,13 +137,16 @@ const LoginView = () => {
           </div>
         </div>
         <div className="mt-3">
-          {/* Aquí se agregó el Link para ir a la vista de recuperar contraseña */}
-          <Link to="/forgot-password" className="text-danger fw-bold text-decoration-none">
+          <Link
+            to="/forgot-password"
+            className="text-danger fw-bold text-decoration-none"
+          >
             ¿No recuerdas tu contraseña? Hacé click aquí
           </Link>
         </div>
       </div>
-    </>
+      <Footer />
+    </div>
   );
 };
 

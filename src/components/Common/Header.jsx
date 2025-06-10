@@ -9,12 +9,6 @@ const Header = () => {
   const navRef = useRef();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-    }
-  }, [isLoggedIn, navigate]);
-
   const handleLogout = async () => {
     const action = await Swal.fire({
       icon: "question",
@@ -31,6 +25,7 @@ const Header = () => {
 
     if (action.isConfirmed) {
       logout();
+      navigate('/login');
     }
   };
 
@@ -42,7 +37,7 @@ const Header = () => {
         <div className="container-fluid">
           <Link
             className="navbar-brand"
-            to={isAdmin ? "/Available" : "/Reservar"}
+            to={isLoggedIn ? (isAdmin ? "/Available" : "/Reservar") : "/"}
           >
             <img
               className="logoHeader"

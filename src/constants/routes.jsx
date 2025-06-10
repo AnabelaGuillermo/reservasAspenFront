@@ -12,14 +12,27 @@ import MyReservationsView from "../views/MyReservationsView";
 import MyProfileView from "../views/MyProfileView";
 import Error404View from "../views/Error404View";
 import PrivateRoute from "../components/PrivateRoute";
+import ForgotPasswordView from "../views/ForgotPasswordView";
+import ResetPasswordView from "../views/ResetPasswordView";
 
 export const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <LoginView />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPasswordView />,
+  },
+  {
+    path: "/reset-password/:token",
+    element: <ResetPasswordView />,
+  },
   {
     path: "/",
     element: <RootView />,
     children: [
       { path: "/", element: <HomeRedirectView /> },
-      { path: "/login", element: <LoginView /> },
       {
         path: "/Available",
         element: (
@@ -84,7 +97,7 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      { path: "*", element: <Error404View /> },
     ],
   },
+  { path: "*", element: <Error404View /> },
 ]);

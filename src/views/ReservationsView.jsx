@@ -173,32 +173,6 @@ const ReservationsView = () => {
             return;
           }
 
-          const updateMotoRes = await fetch(
-            `${API_URL_MOTOS}/${motoId}/incrementStock`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          const updateMotoData = await updateMotoRes.json();
-
-          if (!updateMotoRes.ok) {
-            console.error("Error al devolver el stock:", updateMotoData);
-            Swal.fire({
-              icon: "warning",
-              title: "Advertencia",
-              text: "La reserva se eliminó, pero no se pudo devolver el stock de la moto. Revise manualmente.",
-            });
-          } else {
-            Swal.fire({
-              icon: "success",
-              title: "¡Eliminada!",
-              text: "La reserva ha sido eliminada y el stock de la moto ha sido devuelto.",
-            });
-          }
 
           fetchReservations();
         } catch (err) {

@@ -61,16 +61,6 @@ const ReservationsView = () => {
       }
       const data = await res.json();
       setUsers(data.data || []);
-
-      console.log(
-        "Usuarios cargados para el selector (VERIFICAR ESTRUCTURA):",
-        data.data
-      );
-      if (data.data && data.data.length > 0) {
-        console.log("Ejemplo de primer usuario cargado:", data.data[0]);
-        console.log("Tipo de _id del primer usuario:", typeof data.data[0]._id);
-        console.log("Fullname del primer usuario:", data.data[0].fullname);
-      }
     } catch (err) {
       console.error("Error al obtener los vendedores:", err);
       Swal.fire({
@@ -80,12 +70,6 @@ const ReservationsView = () => {
       });
     }
   };
-
-  useEffect(() => {
-    fetchReservations();
-    fetchNonAdminUsers();
-    fetchAvailableMotos();
-  }, []);
 
   const fetchAvailableMotos = async () => {
     try {
@@ -163,7 +147,7 @@ const ReservationsView = () => {
   const handleDeleteReservation = async (id, motoId) => {
     Swal.fire({
       title: "¿Estás seguro?",
-      text: "No podrás revertir esto. El stock de la moto se incrementará.",
+      text: "¡No podrás revertir esto! El stock de la moto se incrementará automáticamente.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -183,7 +167,7 @@ const ReservationsView = () => {
           if (!deleteRes.ok) {
             Swal.fire({
               icon: "error",
-              title: "Error",
+              title: "Error al eliminar",
               text: deleteData.message || "No se pudo eliminar la reserva.",
             });
             return;
@@ -200,17 +184,18 @@ const ReservationsView = () => {
             }
           );
           const updateMotoData = await updateMotoRes.json();
+
           if (!updateMotoRes.ok) {
             console.error("Error al devolver el stock:", updateMotoData);
             Swal.fire({
               icon: "warning",
               title: "Advertencia",
-              text: "La reserva se eliminó, pero no se pudo devolver el stock de la moto.",
+              text: "La reserva se eliminó, pero no se pudo devolver el stock de la moto. Revise manualmente.",
             });
           } else {
             Swal.fire({
               icon: "success",
-              title: "¡Eliminado!",
+              title: "¡Eliminada!",
               text: "La reserva ha sido eliminada y el stock de la moto ha sido devuelto.",
             });
           }
@@ -218,13 +203,13 @@ const ReservationsView = () => {
           fetchReservations();
         } catch (err) {
           console.error(
-            "Error al eliminar la reserva y devolver el stock:",
+            "Error general al eliminar la reserva o devolver el stock:",
             err
           );
           Swal.fire({
             icon: "error",
-            title: "Error",
-            text: "Hubo un problema al eliminar la reserva y devolver el stock.",
+            title: "Error crítico",
+            text: "Hubo un problema inesperado al procesar la eliminación. Contacte soporte.",
           });
         }
       }
@@ -245,34 +230,10 @@ const ReservationsView = () => {
 
   const handleManualReservationInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Input change - Name: ${name}, Raw Value: ${value}`); // Valor crudo del input
-
-    if (name === "userId") {
-      let selectedUserId = value;
-
-      if (!/^[0-9a-fA-F]{24}$/.test(value)) {
-        console.warn(
-          `Valor de userId no es un ObjectId válido: ${value}. Intentando buscar por fullname.`
-        );
-        const foundUser = users.find((user) => user.fullname === value);
-        if (foundUser) {
-          selectedUserId = foundUser._id;
-          console.log(`Encontrado _id para ${value}: ${selectedUserId}`);
-        } else {
-          console.error(`No se encontró un usuario con el fullname: ${value}`);
-          selectedUserId = "";
-        }
-      }
-      setNewReservation((prevState) => ({
-        ...prevState,
-        userId: selectedUserId,
-      }));
-    } else {
-      setNewReservation((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    }
+    setNewReservation((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const handleConfirmManualReservation = async () => {
@@ -291,24 +252,11 @@ const ReservationsView = () => {
       return;
     }
 
-    console.log("Datos a enviar para la nueva reserva:", newReservation);
-    console.log(
-      "ID de Vendedor a enviar (antes de fetch):",
-      newReservation.userId
-    );
-
     try {
       const now = new Date();
-      const fechaActual = now
-        .toLocaleDateString("es-AR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        })
-        .split("/")
-        .reverse()
-        .join("-");
-      const horaActual = now.toLocaleTimeString("es-AR", {
+
+      const fechaParaBackend = now.toISOString().split("T")[0];
+      const horaParaBackend = now.toLocaleTimeString("es-AR", {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -328,8 +276,8 @@ const ReservationsView = () => {
           numeroComanda: newReservation.comanda,
           cliente: newReservation.cliente,
           observaciones: newReservation.observaciones,
-          fecha: fechaActual,
-          hora: horaActual,
+          fecha: fechaParaBackend,
+          hora: horaParaBackend,
         }),
       });
 
@@ -394,7 +342,22 @@ const ReservationsView = () => {
           <tbody>
             {reservations.map((reserva) => (
               <tr key={reserva._id}>
-                <td>{new Date(reserva.fecha).toLocaleDateString()}</td>
+                <td>
+                  {(() => {
+                    const d = new Date(reserva.fecha);
+
+                    const localDate = new Date(
+                      d.getUTCFullYear(),
+                      d.getUTCMonth(),
+                      d.getUTCDate()
+                    );
+                    return localDate.toLocaleDateString("es-AR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    });
+                  })()}
+                </td>
                 <td>{reserva.userId ? reserva.userId.fullname : "N/A"}</td>
                 <td>{reserva.motoId ? reserva.motoId.name : "N/A"}</td>
                 <td>{reserva.numeroComanda}</td>
@@ -439,7 +402,10 @@ const ReservationsView = () => {
                   <button
                     className="btn btn-sm btn-danger"
                     onClick={() =>
-                      handleDeleteReservation(reserva._id, reserva.motoId._id)
+                      handleDeleteReservation(
+                        reserva._id,
+                        reserva.motoId ? reserva.motoId._id : null
+                      )
                     }
                   >
                     Eliminar

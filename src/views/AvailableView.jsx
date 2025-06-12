@@ -69,7 +69,7 @@ const AvailableView = () => {
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: "¡Atención!",
-      text: "Este producto puede estar relacionado con un historial o reservas, ¿Estás seguro que deseas eliminarlo?",
+      text: "¿Estás seguro que deseas eliminar este producto? Si tiene reservas activas, no podrás eliminarlo.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Sí, eliminar",
@@ -90,7 +90,11 @@ const AvailableView = () => {
         const data = await res.json();
 
         if (!res.ok) {
-          alert(data.message || "Error al eliminar moto");
+          Swal.fire(
+            "Error",
+            data.message || "Error al eliminar moto",
+            "error"
+          );
           return;
         }
 

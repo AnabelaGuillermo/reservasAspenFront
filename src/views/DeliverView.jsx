@@ -14,7 +14,6 @@ const DeliverView = () => {
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
 
   const fetchReservasPendientes = async () => {
-    console.log("fetchReservasPendientes ejecutándose...");
     setLoading(true);
     setError(null);
     try {
@@ -28,13 +27,14 @@ const DeliverView = () => {
         throw new Error(`Error HTTP: ${res.status}`);
       }
       const data = await res.json();
+
       const entregadosIds = entregadosRecientemente.map(
         (entregado) => entregado._id
       );
       const pendientesFiltradas = (data.data || []).filter(
         (reserva) => !entregadosIds.includes(reserva._id)
       );
-      console.log("Reservas pendientes obtenidas:", pendientesFiltradas);
+
       setReservasPendientes(pendientesFiltradas);
     } catch (err) {
       console.error("Error al obtener las reservas pendientes", err);
@@ -45,9 +45,6 @@ const DeliverView = () => {
   };
 
   useEffect(() => {
-    console.log(
-      "Primer useEffect (montaje y carga inicial de entregados) ejecutándose..."
-    );
     const cargarEntregados = () => {
       const storedEntregados = localStorage.getItem(LOCAL_STORAGE_KEY);
       let initialEntregados = [];
@@ -59,31 +56,16 @@ const DeliverView = () => {
         });
       }
       setEntregadosRecientemente(initialEntregados);
-      console.log("Entregados cargados de localStorage:", initialEntregados);
     };
 
     cargarEntregados();
-    console.log(
-      "Primer useEffect (montaje y carga inicial de entregados) terminado."
-    );
   }, []);
 
   useEffect(() => {
-    console.log(
-      "Segundo useEffect (recarga de pendientes al cambiar entregadosRecientemente) ejecutándose...",
-      entregadosRecientemente
-    );
     fetchReservasPendientes();
-    console.log(
-      "Segundo useEffect (recarga de pendientes al cambiar entregadosRecientemente) terminado."
-    );
   }, [entregadosRecientemente]);
 
   useEffect(() => {
-    console.log(
-      "Tercer useEffect (seguimiento de entregadosRecientemente para eliminación) ejecutándose...",
-      entregadosRecientemente
-    );
     entregadosRecientemente.forEach((reserva) => {
       const tiempoRestante =
         DELAY_TIEMPO_ENTREGADO -
@@ -92,17 +74,14 @@ const DeliverView = () => {
         const timeoutId = setTimeout(() => {
           eliminarReservaDefinitivamente(reserva._id);
         }, tiempoRestante);
+        return () => clearTimeout(timeoutId);
       } else {
         eliminarReservaDefinitivamente(reserva._id);
       }
     });
-    console.log(
-      "Tercer useEffect (seguimiento de entregadosRecientemente para eliminación) terminado."
-    );
   }, [entregadosRecientemente]);
 
   const handleEntregarReserva = async (id) => {
-    console.log("handleEntregarReserva ejecutándose para ID:", id);
     Swal.fire({
       title: "¿Entregar reserva?",
       text: "¿Estás seguro de que deseas marcar esta reserva como entregada?",
@@ -152,7 +131,6 @@ const DeliverView = () => {
             LOCAL_STORAGE_KEY,
             JSON.stringify([...entregados, nuevaReservaEntregada])
           );
-          console.log("Reserva entregada, estados actualizados.");
         } catch (error) {
           console.error("Error al entregar la reserva", error);
           Swal.fire(
@@ -166,7 +144,6 @@ const DeliverView = () => {
   };
 
   const handleDeshacerEntrega = async (reserva) => {
-    console.log("handleDeshacerEntrega ejecutándose para ID:", reserva._id);
     Swal.fire({
       title: "¿Deshacer entrega?",
       text: "¿Estás seguro de que deseas deshacer la entrega de esta reserva?",
@@ -209,7 +186,6 @@ const DeliverView = () => {
             JSON.stringify(entregados.filter((e) => e._id !== reserva._id))
           );
           fetchReservasPendientes();
-          console.log("Entrega deshecha, estados actualizados.");
         } catch (error) {
           console.error("Error al deshacer la entrega", error);
           Swal.fire(
@@ -223,7 +199,6 @@ const DeliverView = () => {
   };
 
   const eliminarReservaDefinitivamente = async (id) => {
-    console.log("eliminarReservaDefinitivamente ejecutándose para ID:", id);
     try {
       const res = await fetch(`${API_URL_RESERVAS}/entregadas/${id}/mover`, {
         method: "POST",
@@ -244,7 +219,6 @@ const DeliverView = () => {
           JSON.stringify(entregados.filter((e) => e._id !== id))
         );
         fetchReservasPendientes();
-        console.log("Reserva eliminada definitivamente.");
       } else {
         console.error("Error al mover la reserva entregada al backend");
       }
@@ -266,35 +240,51 @@ const DeliverView = () => {
       <h2 className="text-center mb-4">Entregar Reservas</h2>
 
       <h3>Reservas Pendientes</h3>
-      <table className="table table-striped table-bordered text-center">
+      <table className="table table-striped table-bordered">
         <thead className="table-light">
           <tr>
-            <th>Fecha</th>
-            <th>Vendedor</th>
-            <th>Producto / Moto</th>
-            <th>Comanda</th>
-            <th>Recibo</th>
-            <th>Cliente</th>
+            <th className="text-center">Fecha</th>
+            <th className="text-center">Vendedor</th>
+            <th className="text-center">Producto / Moto</th>
+            <th className="text-center">Comanda</th>
+            <th className="text-center">Recibo</th>
+            <th className="text-center">Cliente</th>
             <th>Observaciones</th>
-            <th>Acciones</th>
+            <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {reservasPendientes.length === 0 ? (
             <tr>
-              <td colSpan="8">No hay reservas pendientes.</td>
+              <td colSpan="8" className="text-center">
+                No hay reservas pendientes.
+              </td>
             </tr>
           ) : (
             reservasPendientes.map((reserva) => (
               <tr key={reserva._id}>
-                <td>{new Date(reserva.fecha).toLocaleDateString()}</td>
-                <td>{reserva.userId?.fullname}</td>
-                <td>{reserva.motoId?.name}</td>
-                <td>{reserva.numeroComanda}</td>
-                <td>{reserva.recibo}</td>
-                <td>{reserva.cliente}</td>
+                <td className="text-center">
+                  {(() => {
+                    const d = new Date(reserva.fecha);
+                    const localDate = new Date(
+                      d.getUTCFullYear(),
+                      d.getUTCMonth(),
+                      d.getUTCDate()
+                    );
+                    return localDate.toLocaleDateString("es-AR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    });
+                  })()}
+                </td>
+                <td className="text-center">{reserva.userId?.fullname}</td>
+                <td className="text-center">{reserva.motoId?.name}</td>
+                <td className="text-center">{reserva.numeroComanda}</td>
+                <td className="text-center">{reserva.recibo}</td>
+                <td className="text-center">{reserva.cliente}</td>
                 <td>{reserva.observaciones}</td>
-                <td>
+                <td className="text-center">
                   <button
                     className="btn btn-success btn-sm"
                     onClick={() => handleEntregarReserva(reserva._id)}
@@ -312,42 +302,80 @@ const DeliverView = () => {
       <p className="text-muted">
         Las entregas se pueden deshacer durante los próximos 5 minutos.
       </p>
-      <table className="table table-striped table-bordered text-center">
+      <table className="table table-striped table-bordered">
         <thead className="table-light">
           <tr>
-            <th>Fecha</th>
-            <th>Fecha de Entrega</th>
-            <th>Vendedor</th>
-            <th>Producto / Moto</th>
-            <th>Comanda</th>
-            <th>Recibo</th>
-            <th>Cliente</th>
+            <th className="text-center">Fecha</th>
+            <th className="text-center">Fecha de Entrega</th>
+            <th className="text-center">Vendedor</th>
+            <th className="text-center">Producto / Moto</th>
+            <th className="text-center">Comanda</th>
+            <th className="text-center">Recibo</th>
+            <th className="text-center">Cliente</th>
             <th>Observaciones</th>
-            <th>Acciones</th>
+            <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {entregadosRecientemente.length === 0 ? (
             <tr>
-              <td colSpan="9">No hay entregas recientes para deshacer.</td>
+              <td colSpan="9" className="text-center">
+                No hay entregas recientes para deshacer.
+              </td>
             </tr>
           ) : (
             entregadosRecientemente.map((reserva) => (
               <tr key={reserva._id}>
-                <td>{new Date(reserva.fecha).toLocaleDateString()}</td>
-                <td>{new Date(reserva.fechaEntrega).toLocaleDateString()}</td>
-                <td>{reserva.userId?.fullname || "N/A"}</td>
-                <td>
+                <td className="text-center">
+                  {(() => {
+                    const d = new Date(reserva.fecha);
+                    const localDate = new Date(
+                      d.getUTCFullYear(),
+                      d.getUTCMonth(),
+                      d.getUTCDate()
+                    );
+                    return localDate.toLocaleDateString("es-AR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    });
+                  })()}
+                </td>
+                <td className="text-center">
+                  {(() => {
+                    const d = new Date(reserva.fechaEntrega);
+                    return (
+                      d.toLocaleDateString("es-AR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      }) +
+                      " " +
+                      d.toLocaleTimeString("es-AR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      })
+                    );
+                  })()}
+                </td>
+                <td className="text-center">
+                  {reserva.userId?.fullname || "N/A"}
+                </td>
+                <td className="text-center">
                   {reserva.motoId?.name || "N/A"}
                   {reserva.motoId?.patente
                     ? ` / ${reserva.motoId.patente}`
                     : ""}
                 </td>
-                <td>{reserva.numeroComanda}</td>
-                <td>{reserva.recibo}</td>
-                <td>{reserva.cliente}</td>
+                <td className="text-center">{reserva.numeroComanda}</td>
+                <td className="text-center">{reserva.recibo}</td>
+                <td className="text-center">{reserva.cliente}</td>
                 <td>{reserva.observaciones}</td>
-                <td>
+                <td className="text-center">
                   <button
                     className="btn btn-warning btn-sm"
                     onClick={() => handleDeshacerEntrega(reserva)}

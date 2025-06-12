@@ -140,7 +140,7 @@ const UsersView = () => {
   const handleDeleteUser = async (userId) => {
     Swal.fire({
       title: "¿Estás seguro?",
-      text: "¡No podrás revertir esto! El usuario será desactivado.",
+      text: "¡No podrás revertir esto! El usuario será eliminado.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -168,7 +168,7 @@ const UsersView = () => {
           await response.json();
           Swal.fire(
             "¡Eliminado!",
-            "El usuario ha sido desactivado correctamente.",
+            "El usuario ha sido eliminado correctamente.",
             "success"
           );
           fetchUsers();

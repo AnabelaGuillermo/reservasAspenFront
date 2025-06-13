@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 
 const DELAY_TIEMPO_ENTREGADO = 300000;
@@ -12,6 +12,8 @@ const DeliverView = () => {
   const token = localStorage.getItem("token");
   const API_URL_RESERVAS =
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
+
+  const timeoutsRef = useRef({});
 
   const fetchReservasPendientes = async () => {
     setLoading(true);
@@ -66,19 +68,35 @@ const DeliverView = () => {
   }, [entregadosRecientemente]);
 
   useEffect(() => {
+    for (const id in timeoutsRef.current) {
+      clearTimeout(timeoutsRef.current[id]);
+    }
+    timeoutsRef.current = {};
+
     entregadosRecientemente.forEach((reserva) => {
-      const tiempoRestante =
-        DELAY_TIEMPO_ENTREGADO -
-        (Date.now() - new Date(reserva.fechaEntrega).getTime());
+      const tiempoTranscurrido =
+        Date.now() - new Date(reserva.fechaEntrega).getTime();
+      const tiempoRestante = DELAY_TIEMPO_ENTREGADO - tiempoTranscurrido;
+
       if (tiempoRestante > 0) {
-        const timeoutId = setTimeout(() => {
-          eliminarReservaDefinitivamente(reserva._id);
-        }, tiempoRestante);
-        return () => clearTimeout(timeoutId);
+        if (!timeoutsRef.current[reserva._id]) {
+          const timeoutId = setTimeout(() => {
+            eliminarReservaDefinitivamente(reserva._id);
+          }, tiempoRestante);
+          timeoutsRef.current[reserva._id] = timeoutId;
+        }
       } else {
-        eliminarReservaDefinitivamente(reserva._id);
+        if (entregadosRecientemente.some((e) => e._id === reserva._id)) {
+          eliminarReservaDefinitivamente(reserva._id);
+        }
       }
     });
+
+    return () => {
+      for (const id in timeoutsRef.current) {
+        clearTimeout(timeoutsRef.current[id]);
+      }
+    };
   }, [entregadosRecientemente]);
 
   const handleEntregarReserva = async (id) => {
@@ -207,20 +225,31 @@ const DeliverView = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (res.ok) {
-        setEntregadosRecientemente((prev) =>
-          prev.filter((entregado) => entregado._id !== id)
-        );
-        const storedEntregados =
-          localStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
-        const entregados = JSON.parse(storedEntregados);
-        localStorage.setItem(
-          LOCAL_STORAGE_KEY,
-          JSON.stringify(entregados.filter((e) => e._id !== id))
-        );
-        fetchReservasPendientes();
+        const responseData = await res.json();
+        if (
+          responseData.message ===
+          "La reserva ya ha sido movida a entregados permanentemente."
+        ) {
+          console.log(`La reserva ${id} ya estaba movida permanentemente.`);
+        } else {
+          setEntregadosRecientemente((prev) =>
+            prev.filter((entregado) => entregado._id !== id)
+          );
+          const storedEntregados =
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
+          const entregados = JSON.parse(storedEntregados);
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY,
+            JSON.stringify(entregados.filter((e) => e._id !== id))
+          );
+        }
       } else {
-        console.error("Error al mover la reserva entregada al backend");
+        console.error(
+          "Error al mover la reserva entregada al backend. Estado:",
+          res.status
+        );
       }
     } catch (error) {
       console.error("Error al mover la reserva entregada", error);

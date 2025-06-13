@@ -27,24 +27,20 @@ const MyProfileView = () => {
     if (loggedInUser) {
       setCurrentUser(loggedInUser);
     } else {
-      setError("No se pudo encontrar la información de tu perfil. Por favor, inicia sesión.");
+      setError(
+        "No se pudo encontrar la información de tu perfil. Por favor, inicia sesión."
+      );
     }
     setLoading(false);
   }, []);
 
   if (loading) {
-    return (
-      <div className="text-center mt-5">
-        Cargando tu perfil...
-      </div>
-    );
+    return <div className="text-center mt-5">Cargando tu perfil...</div>;
   }
 
   if (error) {
     return (
-      <div className="alert alert-danger text-center mt-5">
-        Error: {error}
-      </div>
+      <div className="alert alert-danger text-center mt-5">Error: {error}</div>
     );
   }
 

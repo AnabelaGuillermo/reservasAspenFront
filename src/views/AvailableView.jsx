@@ -17,7 +17,6 @@ const AvailableView = () => {
       const data = await res.json();
       const availableData = data.data || [];
       setAvailable(availableData);
-      console.log("Datos disponibles actualizados:", availableData);
     } catch (error) {
       console.error("Error al obtener disponibles", error);
       setAvailable([]);
@@ -90,11 +89,7 @@ const AvailableView = () => {
         const data = await res.json();
 
         if (!res.ok) {
-          Swal.fire(
-            "Error",
-            data.message || "Error al eliminar moto",
-            "error"
-          );
+          Swal.fire("Error", data.message || "Error al eliminar moto", "error");
           return;
         }
 

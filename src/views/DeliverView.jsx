@@ -232,7 +232,6 @@ const DeliverView = () => {
           responseData.message ===
           "La reserva ya ha sido movida a entregados permanentemente."
         ) {
-          console.log(`La reserva ${id} ya estaba movida permanentemente.`);
         } else {
           setEntregadosRecientemente((prev) =>
             prev.filter((entregado) => entregado._id !== id)

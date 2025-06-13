@@ -43,10 +43,13 @@ const ForgotPasswordView = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <SimpleHeader />
-      <div className="container d-flex flex-column align-items-center justify-content-center bg-white mt-5 flex-grow-1"> {/* This div will expand */}
+      <div className="container d-flex flex-column align-items-center justify-content-center bg-white mt-5 flex-grow-1">
         <div className="text-center mb-4">
           <h2>RECUPERAR CONTRASEÑA</h2>
-          <p>Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña.</p>
+          <p>
+            Ingresa tu email y te enviaremos un enlace para restablecer tu
+            contraseña.
+          </p>
         </div>
 
         <div className="d-flex flex-row bg-dark p-4">

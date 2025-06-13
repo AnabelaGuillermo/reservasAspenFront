@@ -1,43 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { decodeJWT } from '../utilities/decodeJWT';
-import '../css/RecordView.css';
+import React, { useState, useEffect } from "react";
+import { decodeJWT } from "../utilities/decodeJWT";
+import "../css/RecordView.css";
 
 const API_URL_BASE = import.meta.env.VITE_BACKEND_URL;
 const API_URL_ACTIVIDADES = `${API_URL_BASE}/api/v1/actividades`;
 
 const RecordView = () => {
   const [historial, setHistorial] = useState([]);
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   const user = token ? decodeJWT(token) : null;
   const isAdmin = user ? user.isAdmin : false;
 
-  console.log('RecordView: is Admin?', isAdmin);
-
   const fetchActivities = () => {
     if (isAdmin) {
-      console.log('RecordView: Fetching activities from:', API_URL_ACTIVIDADES);
-
       const fetchOptions = {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       };
 
       fetch(API_URL_ACTIVIDADES, fetchOptions)
         .then((response) => {
-          console.log('RecordView: Response status:', response.status);
-
           if (response.status === 304) {
             console.warn(
-              'RecordView: Received 304 Not Modified. No new data from server.'
+              "RecordView: Received 304 Not Modified. No new data from server."
             );
             return { data: [] };
           }
 
           if (!response.ok) {
             console.error(
-              'RecordView: HTTP Error response not OK:',
+              "RecordView: HTTP Error response not OK:",
               response.statusText
             );
             return response
@@ -57,27 +51,20 @@ const RecordView = () => {
           return response.json();
         })
         .then((data) => {
-          console.log('RecordView: Data received:', data);
           if (data && Array.isArray(data.data)) {
             setHistorial(data.data);
-            console.log(
-              'RecordView: Historial updated with',
-              data.data.length,
-              'items.'
-            );
           } else {
             console.warn(
-              'RecordView: Data is not in expected format or is empty.',
+              "RecordView: Data is not in expected format or is empty.",
               data
             );
             setHistorial([]);
           }
         })
         .catch((error) =>
-          console.error('RecordView.jsx: Error al obtener el historial:', error)
+          console.error("RecordView.jsx: Error al obtener el historial:", error)
         );
     } else {
-      console.log('RecordView: User is not admin, not fetching activities.');
     }
   };
 
@@ -88,7 +75,7 @@ const RecordView = () => {
   const handleClearHistory = async () => {
     if (
       !window.confirm(
-        '¿Estás seguro de que quieres eliminar todo el historial de actividades? Esta acción no se puede deshacer.'
+        "¿Estás seguro de que quieres eliminar todo el historial de actividades? Esta acción no se puede deshacer."
       )
     ) {
       return;
@@ -96,9 +83,9 @@ const RecordView = () => {
 
     try {
       const response = await fetch(API_URL_ACTIVIDADES, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -106,7 +93,9 @@ const RecordView = () => {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          `Error al limpiar el historial: ${errorData.message || response.statusText}`
+          `Error al limpiar el historial: ${
+            errorData.message || response.statusText
+          }`
         );
       }
 
@@ -114,7 +103,7 @@ const RecordView = () => {
       alert(data.message);
       setHistorial([]);
     } catch (error) {
-      console.error('Error al limpiar el historial:', error);
+      console.error("Error al limpiar el historial:", error);
       alert(`Error: ${error.message}`);
     }
   };
@@ -147,7 +136,7 @@ const RecordView = () => {
                 <td>
                   {record.usuarioId
                     ? `${record.usuarioId.fullname} (${record.usuarioId.email})`
-                    : 'N/A'}
+                    : "N/A"}
                 </td>
                 <td>{record.accion}</td>
                 <td>{new Date(record.fechaHora).toLocaleString()}</td>

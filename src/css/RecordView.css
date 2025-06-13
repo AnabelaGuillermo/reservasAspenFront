@@ -8,7 +8,8 @@
   margin-top: 20px;
 }
 
-.record-table th, .record-table td {
+.record-table th,
+.record-table td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;

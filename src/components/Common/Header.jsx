@@ -25,7 +25,7 @@ const Header = () => {
 
     if (action.isConfirmed) {
       logout();
-      navigate('/login');
+      navigate("/login");
     }
   };
 

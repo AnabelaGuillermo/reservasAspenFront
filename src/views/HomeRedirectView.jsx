@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Importar useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSession } from "../stores/useSession";
 
 const HomeRedirectView = () => {
@@ -7,7 +7,7 @@ const HomeRedirectView = () => {
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => {
-    if (location.pathname === '/') {
+    if (location.pathname === "/") {
       if (!isLoggedIn) {
         navigate("/login");
       } else if (user?.isAdmin) {

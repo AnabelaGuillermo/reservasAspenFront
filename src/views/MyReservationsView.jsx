@@ -66,8 +66,7 @@ const MyReservationsView = () => {
                 <td>{reserva.motoId ? `${reserva.motoId.name || ""}` : ""}</td>
                 <td>{reserva.numeroComanda}</td>
                 <td>{reserva.recibo}</td>
-                <td>{reserva.cliente}</td>{" "}
-                <td>{reserva.observaciones}</td>
+                <td>{reserva.cliente}</td> <td>{reserva.observaciones}</td>
               </tr>
             ))
           )}

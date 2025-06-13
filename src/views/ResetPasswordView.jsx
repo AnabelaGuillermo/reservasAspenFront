@@ -17,26 +17,18 @@ const ResetPasswordView = () => {
 
   const newPassword = watch("password");
 
-  console.log("Token de la URL:", token);
-
   const onSubmit = async (data) => {
-    console.log("Datos del formulario (data):", data);
-
     if (data.password !== data.confirmPassword) {
       toast.error("Las contraseñas no coinciden.");
-      console.log("Error: Las contraseñas no coinciden en el frontend.");
       return;
     }
 
     const payload = { password: data.password };
 
-    console.log("Payload a enviar al backend:", payload);
-
     try {
       const url = `${
         import.meta.env.VITE_BACKEND_URL
       }/api/v1/auth/reset-password/${token}`;
-      console.log("URL de la petición al backend:", url);
 
       const response = await fetch(url, {
         method: "POST",
@@ -46,11 +38,7 @@ const ResetPasswordView = () => {
         body: JSON.stringify(payload),
       });
 
-      console.log("Respuesta raw del fetch:", response);
-
       const result = await response.json();
-
-      console.log("Resultado de la API:", result);
 
       if (response.ok) {
         toast.success(result.message);
@@ -85,7 +73,9 @@ const ResetPasswordView = () => {
           <div className="col-md-8 d-flex flex-column justify-content-center p-3">
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-3 text-center">
-                <label className="form-label text-white">NUEVA CONTRASEÑA</label>
+                <label className="form-label text-white">
+                  NUEVA CONTRASEÑA
+                </label>
                 <input
                   type="password"
                   className={`form-control ${

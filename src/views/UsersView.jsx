@@ -232,7 +232,7 @@ const UsersView = () => {
             email: "",
             password: "",
             isAdmin: false,
-          }); // Limpiar formulario
+          });
           fetchUsers();
         } catch (err) {
           console.error("Error al añadir usuario:", err);

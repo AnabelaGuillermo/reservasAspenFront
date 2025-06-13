@@ -7,7 +7,9 @@ const Error404View = () => {
       <div className="text-center">
         <h2 className="display-1 text-danger fw-bold">404</h2>
         <p className="lead fs-3">Página no encontrada</p>
-        <p className="text-muted mb-4">Lo sentimos, parece que ha habido un error</p>
+        <p className="text-muted mb-4">
+          Lo sentimos, parece que ha habido un error
+        </p>
       </div>
       <div>
         <Link to="/" className="btn btn-primary btn-lg px-5 py-3 shadow-sm">

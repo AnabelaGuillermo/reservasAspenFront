@@ -173,7 +173,6 @@ const ReservationsView = () => {
             return;
           }
 
-
           fetchReservations();
         } catch (err) {
           console.error(

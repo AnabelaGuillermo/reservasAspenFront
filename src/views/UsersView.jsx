@@ -286,7 +286,7 @@ const UsersView = () => {
 
       <h2 className="mb-4 text-center">USUARIOS</h2>
       <div className="table-responsive mb-5">
-        <table className="table table-striped table-bordered">
+        <table className="table table-striped table-bordered text-center">
           <thead className="thead-dark">
             <tr>
               <th>NOMBRE</th>
@@ -330,7 +330,7 @@ const UsersView = () => {
       </div>
 
       <h2 className="mb-4 text-center">AÑADIR USUARIO</h2>
-      <div className="card p-4 bg-dark text-white">
+      <div className="card p-4 bg-dark text-white mb-5">
         <form onSubmit={handleAddUser}>
           <div className="mb-3">
             <label htmlFor="fullname" className="form-label">

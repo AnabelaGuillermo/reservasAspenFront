@@ -286,7 +286,7 @@ const UsersView = () => {
 
       <h2 className="mb-4 text-center">USUARIOS</h2>
       <div className="table-responsive mb-5">
-        <table className="table table-striped table-bordered">
+        <table className="table table-striped table-bordered text-center">
           <thead className="thead-dark">
             <tr>
               <th>NOMBRE</th>
@@ -330,7 +330,7 @@ const UsersView = () => {
       </div>
 
       <h2 className="mb-4 text-center">AÑADIR USUARIO</h2>
-      <div className="card p-4 bg-dark text-white">
+      <div className="card p-4 bg-dark text-white mb-5">
         <form onSubmit={handleAddUser}>
           <div className="mb-3">
             <label htmlFor="fullname" className="form-label">
@@ -343,6 +343,7 @@ const UsersView = () => {
               name="fullname"
               value={newUserForm.fullname}
               onChange={handleNewUserChange}
+              maxLength="50"
               required
             />
           </div>
@@ -357,6 +358,7 @@ const UsersView = () => {
               name="email"
               value={newUserForm.email}
               onChange={handleNewUserChange}
+              maxLength="50"
               required
             />
           </div>
@@ -371,8 +373,13 @@ const UsersView = () => {
               name="password"
               value={newUserForm.password}
               onChange={handleNewUserChange}
+              maxLength="50"
               required
             />
+            <p id="passwordHelpBlock" className="form-text text-white">
+              Debe tener una minúscula, una mayúscula, un dígito y un carácter
+              especial, entre 8 y 15 caracteres.
+            </p>
           </div>
           <div className="mb-3 form-check">
             <input

@@ -59,7 +59,7 @@ const ResetPasswordView = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <SimpleHeader />
-      <div className="container d-flex flex-column align-items-center justify-content-center bg-white mt-5 flex-grow-1">
+      <div className="container d-flex flex-column align-items-center justify-content-center bg-white mt-5 flex-grow-1 mb-5">
         <div className="text-center mb-4">
           <h2>RESTABLECER CONTRASEÑA</h2>
           <p>Ingresa tu nueva contraseña.</p>

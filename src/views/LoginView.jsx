@@ -136,7 +136,7 @@ const LoginView = () => {
             </form>
           </div>
         </div>
-        <div className="mt-3">
+        <div className="mt-3 mb-5">
           <Link
             to="/forgot-password"
             className="text-danger fw-bold text-decoration-none"

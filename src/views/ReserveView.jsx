@@ -249,6 +249,7 @@ const ReserveView = () => {
                 id="comanda"
                 value={numeroComanda}
                 onChange={(e) => setNumeroComanda(e.target.value)}
+                maxLength={50}
                 required
               />
             </div>
@@ -262,6 +263,7 @@ const ReserveView = () => {
                 id="recibo"
                 value={recibo}
                 onChange={(e) => setRecibo(e.target.value)}
+                maxLength={50}
                 required
               />
             </div>
@@ -275,6 +277,7 @@ const ReserveView = () => {
                 id="cliente"
                 value={cliente}
                 onChange={(e) => setCliente(e.target.value)}
+                maxLength={50}
                 required
               />
             </div>
@@ -287,6 +290,7 @@ const ReserveView = () => {
                 id="observaciones"
                 value={observaciones}
                 onChange={(e) => setObservaciones(e.target.value)}
+                maxLength={100}
               />
             </div>
             <div className="d-flex justify-content-end gap-2">

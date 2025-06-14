@@ -17,10 +17,8 @@ const Header = () => {
       confirmButtonText: "Sí, salir",
       cancelButtonText: "No, cancelar",
       showCancelButton: true,
-      customClass: {
-        confirmButton: "confirm-button-class",
-        cancelButton: "cancel-button-class",
-      },
+      confirmButtonColor: "#28a745",
+      cancelButtonColor: "#dc3545",
     });
 
     if (action.isConfirmed) {

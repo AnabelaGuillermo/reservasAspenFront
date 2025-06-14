@@ -285,6 +285,14 @@ const ReservationsView = () => {
 
   const handleCancelManualReservation = () => {
     setIsAddingManualReservation(false);
+    setNewReservation({
+      userId: "",
+      motoId: "",
+      comanda: "",
+      recibo: "",
+      cliente: "",
+      observaciones: "",
+    });
   };
 
   if (loading) {
@@ -301,7 +309,7 @@ const ReservationsView = () => {
       <div className="table-responsive">
         <table className="table table-striped table-bordered">
           <thead className="table-light">
-            <tr>
+            <tr className="text-center">
               <th>Fecha</th>
               <th>Vendedor</th>
               <th>Producto / Moto</th>
@@ -363,10 +371,10 @@ const ReservationsView = () => {
                     reserva.observaciones
                   )}
                 </td>
-                <td>
+                <td className="text-center">
                   {editingReservationId !== reserva._id && (
                     <button
-                      className="btn btn-sm btn-primary me-2"
+                      className="btn btn-sm btn-warning me-2"
                       onClick={() => handleEditClick(reserva)}
                     >
                       Editar
@@ -408,11 +416,11 @@ const ReservationsView = () => {
           </button>
         </div>
       ) : (
-        <div className="card p-3 mt-3">
-          <h4>Nueva Reserva Manual</h4>
+        <div className="card p-4 bg-dark text-white mb-5">
+          <h4 className="mb-4">Nueva Reserva Manual</h4>
           <div className="mb-3">
             <label htmlFor="userId" className="form-label">
-              Vendedor
+              VENDEDOR
             </label>
             <select
               className="form-select"
@@ -431,7 +439,7 @@ const ReservationsView = () => {
           </div>
           <div className="mb-3">
             <label htmlFor="motoId" className="form-label">
-              Producto / Moto
+              PRODUCTO / MOTO
             </label>
             <select
               className="form-select"
@@ -450,7 +458,7 @@ const ReservationsView = () => {
           </div>
           <div className="mb-3">
             <label htmlFor="comanda" className="form-label">
-              Número de Comanda
+              NÚMERO DE COMANDA
             </label>
             <input
               type="text"
@@ -458,12 +466,13 @@ const ReservationsView = () => {
               name="comanda"
               value={newReservation.comanda}
               onChange={handleManualReservationInputChange}
+              maxLength={50}
               required
             />
           </div>
           <div className="mb-3">
             <label htmlFor="recibo" className="form-label">
-              Recibo
+              RECIBO
             </label>
             <input
               type="text"
@@ -471,12 +480,13 @@ const ReservationsView = () => {
               name="recibo"
               value={newReservation.recibo}
               onChange={handleManualReservationInputChange}
+              maxLength={50}
               required
             />
           </div>
           <div className="mb-3">
             <label htmlFor="cliente" className="form-label">
-              Cliente
+              CLIENTE
             </label>
             <input
               type="text"
@@ -484,32 +494,34 @@ const ReservationsView = () => {
               name="cliente"
               value={newReservation.cliente}
               onChange={handleManualReservationInputChange}
+              maxLength={50}
               required
             />
           </div>
           <div className="mb-3">
             <label htmlFor="observaciones" className="form-label">
-              Observaciones
+              OBSERVACIONES
             </label>
             <textarea
               className="form-control"
               name="observaciones"
               value={newReservation.observaciones}
               onChange={handleManualReservationInputChange}
+              maxLength={100}
             />
           </div>
           <div className="d-flex justify-content-end gap-2">
             <button
-              className="btn btn-primary"
+              className="btn btn-success me-2"
               onClick={handleConfirmManualReservation}
             >
-              Añadir Reserva
+              AÑADIR
             </button>
             <button
-              className="btn btn-secondary"
+              className="btn btn-danger"
               onClick={handleCancelManualReservation}
             >
-              Cancelar
+              CANCELAR
             </button>
           </div>
         </div>

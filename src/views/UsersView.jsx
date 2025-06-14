@@ -343,6 +343,7 @@ const UsersView = () => {
               name="fullname"
               value={newUserForm.fullname}
               onChange={handleNewUserChange}
+              maxLength="50"
               required
             />
           </div>
@@ -357,6 +358,7 @@ const UsersView = () => {
               name="email"
               value={newUserForm.email}
               onChange={handleNewUserChange}
+              maxLength="50"
               required
             />
           </div>
@@ -371,8 +373,13 @@ const UsersView = () => {
               name="password"
               value={newUserForm.password}
               onChange={handleNewUserChange}
+              maxLength="50"
               required
             />
+            <p id="passwordHelpBlock" className="form-text text-white">
+              Debe tener una minúscula, una mayúscula, un dígito y un carácter
+              especial, entre 8 y 15 caracteres.
+            </p>
           </div>
           <div className="mb-3 form-check">
             <input

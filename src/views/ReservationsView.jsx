@@ -21,6 +21,9 @@ const ReservationsView = () => {
     observaciones: "",
   });
 
+  const [selectedSeller, setSelectedSeller] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
   const API_URL_RESERVAS =
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
   const API_URL_USERS = import.meta.env.VITE_BACKEND_URL + "/api/v1/users";
@@ -295,6 +298,26 @@ const ReservationsView = () => {
     });
   };
 
+  const filteredReservations = reservations.filter((reserva) => {
+    const matchesSeller = selectedSeller
+      ? reserva.userId && reserva.userId._id === selectedSeller
+      : true;
+
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    const matchesSearch =
+      reserva.cliente.toLowerCase().includes(lowerCaseSearchTerm) ||
+      reserva.numeroComanda.toLowerCase().includes(lowerCaseSearchTerm) ||
+      reserva.recibo.toLowerCase().includes(lowerCaseSearchTerm) ||
+      (reserva.motoId &&
+        reserva.motoId.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (reserva.userId &&
+        reserva.userId.fullname.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (reserva.observaciones &&
+        reserva.observaciones.toLowerCase().includes(lowerCaseSearchTerm));
+
+    return matchesSeller && matchesSearch;
+  });
+
   if (loading) {
     return <div className="text-center py-5">Cargando reservas...</div>;
   }
@@ -306,6 +329,40 @@ const ReservationsView = () => {
   return (
     <div className="container mt-4">
       <h2 className="text-center mb-4">Listado de Reservas</h2>
+      <div className="row mb-3 align-items-center">
+        <div className="col-md-4 mb-3 mb-md-0">
+          <label htmlFor="sellerFilter" className="form-label mb-1">
+            Filtrar por Vendedor:
+          </label>
+          <select
+            id="sellerFilter"
+            className="form-select"
+            value={selectedSeller}
+            onChange={(e) => setSelectedSeller(e.target.value)}
+          >
+            <option value="">Todos los Vendedores</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.fullname}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-md-8">
+          <label htmlFor="searchFilter" className="form-label mb-1">
+            Buscar:
+          </label>
+          <input
+            type="text"
+            id="searchFilter"
+            className="form-control"
+            placeholder="Buscar por cliente, comanda, recibo, moto o vendedor..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
       <div className="table-responsive">
         <table className="table table-striped table-bordered">
           <thead className="table-light">
@@ -321,83 +378,86 @@ const ReservationsView = () => {
             </tr>
           </thead>
           <tbody>
-            {reservations.map((reserva) => (
-              <tr key={reserva._id}>
-                <td>
-                  {(() => {
-                    const d = new Date(reserva.fecha);
+            {filteredReservations.length > 0 ? (
+              filteredReservations.map((reserva) => (
+                <tr key={reserva._id}>
+                  <td>
+                    {(() => {
+                      const d = new Date(reserva.fecha);
 
-                    const localDate = new Date(
-                      d.getUTCFullYear(),
-                      d.getUTCMonth(),
-                      d.getUTCDate()
-                    );
-                    return localDate.toLocaleDateString("es-AR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    });
-                  })()}
-                </td>
-                <td>{reserva.userId ? reserva.userId.fullname : "N/A"}</td>
-                <td>{reserva.motoId ? reserva.motoId.name : "N/A"}</td>
-                <td>{reserva.numeroComanda}</td>
-                <td>{reserva.recibo}</td>
-                <td>{reserva.cliente}</td>
-                <td>
-                  {editingReservationId === reserva._id ? (
-                    <>
-                      <textarea
-                        className="form-control"
-                        value={editedObservations}
-                        onChange={(e) => setEditedObservations(e.target.value)}
-                      />
-                      <div className="mt-2">
-                        <button
-                          className="btn btn-sm btn-success me-2"
-                          onClick={() => handleSaveObservations(reserva._id)}
-                        >
-                          Guardar
-                        </button>
-                        <button
-                          className="btn btn-sm btn-secondary"
-                          onClick={handleCancelEdit}
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    reserva.observaciones
-                  )}
-                </td>
-                <td className="text-center">
-                  {editingReservationId !== reserva._id && (
+                      const localDate = new Date(
+                        d.getUTCFullYear(),
+                        d.getUTCMonth(),
+                        d.getUTCDate()
+                      );
+                      return localDate.toLocaleDateString("es-AR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      });
+                    })()}
+                  </td>
+                  <td>{reserva.userId ? reserva.userId.fullname : "N/A"}</td>
+                  <td>{reserva.motoId ? reserva.motoId.name : "N/A"}</td>
+                  <td>{reserva.numeroComanda}</td>
+                  <td>{reserva.recibo}</td>
+                  <td>{reserva.cliente}</td>
+                  <td>
+                    {editingReservationId === reserva._id ? (
+                      <>
+                        <textarea
+                          className="form-control"
+                          value={editedObservations}
+                          onChange={(e) =>
+                            setEditedObservations(e.target.value)
+                          }
+                        />
+                        <div className="mt-2">
+                          <button
+                            className="btn btn-sm btn-success me-2"
+                            onClick={() => handleSaveObservations(reserva._id)}
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            className="btn btn-sm btn-secondary"
+                            onClick={handleCancelEdit}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      reserva.observaciones
+                    )}
+                  </td>
+                  <td className="text-center">
+                    {editingReservationId !== reserva._id && (
+                      <button
+                        className="btn btn-sm btn-warning me-2"
+                        onClick={() => handleEditClick(reserva)}
+                      >
+                        Editar
+                      </button>
+                    )}
                     <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => handleEditClick(reserva)}
+                      className="btn btn-sm btn-danger"
+                      onClick={() =>
+                        handleDeleteReservation(
+                          reserva._id,
+                          reserva.motoId ? reserva.motoId._id : null
+                        )
+                      }
                     >
-                      Editar
+                      Eliminar
                     </button>
-                  )}
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() =>
-                      handleDeleteReservation(
-                        reserva._id,
-                        reserva.motoId ? reserva.motoId._id : null
-                      )
-                    }
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {reservations.length === 0 && (
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr>
                 <td colSpan="8" className="text-center">
-                  No hay reservas registradas.
+                  No hay reservas que coincidan con los filtros aplicados.
                 </td>
               </tr>
             )}

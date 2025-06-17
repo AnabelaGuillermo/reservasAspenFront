@@ -9,9 +9,18 @@ const DeliverView = () => {
   const [entregadosRecientemente, setEntregadosRecientemente] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [users, setUsers] = useState([]);
+
+  const [selectedSellerPendientes, setSelectedSellerPendientes] = useState("");
+  const [searchTermPendientes, setSearchTermPendientes] = useState("");
+
+  const [selectedSellerEntregados, setSelectedSellerEntregados] = useState("");
+  const [searchTermEntregados, setSearchTermEntregados] = useState("");
+
   const token = localStorage.getItem("token");
   const API_URL_RESERVAS =
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
+  const API_URL_USERS = import.meta.env.VITE_BACKEND_URL + "/api/v1/users";
 
   const timeoutsRef = useRef({});
 
@@ -46,6 +55,28 @@ const DeliverView = () => {
     }
   };
 
+  const fetchNonAdminUsers = async () => {
+    try {
+      const res = await fetch(`${API_URL_USERS}?isAdmin=false`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setUsers(data.data || []);
+    } catch (err) {
+      console.error("Error al obtener los vendedores:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudieron cargar los vendedores para los filtros.",
+      });
+    }
+  };
+
   useEffect(() => {
     const cargarEntregados = () => {
       const storedEntregados = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -61,6 +92,7 @@ const DeliverView = () => {
     };
 
     cargarEntregados();
+    fetchNonAdminUsers();
   }, []);
 
   useEffect(() => {
@@ -255,6 +287,42 @@ const DeliverView = () => {
     }
   };
 
+  const filterReservations = (reservas, selectedSeller, searchTerm) => {
+    return reservas.filter((reserva) => {
+      const matchesSeller = selectedSeller
+        ? reserva.userId && reserva.userId._id === selectedSeller
+        : true;
+
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      const matchesSearch =
+        reserva.cliente.toLowerCase().includes(lowerCaseSearchTerm) ||
+        reserva.numeroComanda.toLowerCase().includes(lowerCaseSearchTerm) ||
+        reserva.recibo.toLowerCase().includes(lowerCaseSearchTerm) ||
+        (reserva.motoId &&
+          reserva.motoId.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
+        (reserva.userId &&
+          reserva.userId.fullname
+            .toLowerCase()
+            .includes(lowerCaseSearchTerm)) ||
+        (reserva.observaciones &&
+          reserva.observaciones.toLowerCase().includes(lowerCaseSearchTerm));
+
+      return matchesSeller && matchesSearch;
+    });
+  };
+
+  const filteredReservasPendientes = filterReservations(
+    reservasPendientes,
+    selectedSellerPendientes,
+    searchTermPendientes
+  );
+
+  const filteredEntregadosRecientemente = filterReservations(
+    entregadosRecientemente,
+    selectedSellerEntregados,
+    searchTermEntregados
+  );
+
   if (loading) {
     return <div className="text-center py-5">Cargando reservas...</div>;
   }
@@ -268,154 +336,216 @@ const DeliverView = () => {
       <h2 className="text-center mb-4">Entregar Reservas</h2>
 
       <h3>Reservas Pendientes</h3>
-      <table className="table table-striped table-bordered">
-        <thead className="table-light">
-          <tr>
-            <th className="text-center">Fecha</th>
-            <th className="text-center">Vendedor</th>
-            <th className="text-center">Producto / Moto</th>
-            <th className="text-center">Comanda</th>
-            <th className="text-center">Recibo</th>
-            <th className="text-center">Cliente</th>
-            <th>Observaciones</th>
-            <th className="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reservasPendientes.length === 0 ? (
+      <div className="row mb-3 align-items-center">
+        <div className="col-md-4 mb-3 mb-md-0">
+          <label htmlFor="sellerFilterPendientes" className="form-label mb-1">
+            Filtrar por Vendedor:
+          </label>
+          <select
+            id="sellerFilterPendientes"
+            className="form-select"
+            value={selectedSellerPendientes}
+            onChange={(e) => setSelectedSellerPendientes(e.target.value)}
+          >
+            <option value="">Todos los Vendedores</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.fullname}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-md-8">
+          <label htmlFor="searchFilterPendientes" className="form-label mb-1">
+            Buscar:
+          </label>
+          <input
+            type="text"
+            id="searchFilterPendientes"
+            className="form-control"
+            placeholder="Buscar por cliente, comanda, recibo, moto o vendedor..."
+            value={searchTermPendientes}
+            onChange={(e) => setSearchTermPendientes(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="table-responsive">
+        <table className="table table-striped table-bordered">
+          <thead className="table-light">
             <tr>
-              <td colSpan="8" className="text-center">
-                No hay reservas pendientes.
-              </td>
+              <th className="text-center">Fecha</th>
+              <th className="text-center">Vendedor</th>
+              <th className="text-center">Producto / Moto</th>
+              <th className="text-center">Comanda</th>
+              <th className="text-center">Recibo</th>
+              <th className="text-center">Cliente</th>
+              <th>Observaciones</th>
+              <th className="text-center">Acciones</th>
             </tr>
-          ) : (
-            reservasPendientes.map((reserva) => (
-              <tr key={reserva._id}>
-                <td className="text-center">
-                  {(() => {
-                    const d = new Date(reserva.fecha);
-                    const localDate = new Date(
-                      d.getUTCFullYear(),
-                      d.getUTCMonth(),
-                      d.getUTCDate()
-                    );
-                    return localDate.toLocaleDateString("es-AR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    });
-                  })()}
-                </td>
-                <td className="text-center">{reserva.userId?.fullname}</td>
-                <td className="text-center">{reserva.motoId?.name}</td>
-                <td className="text-center">{reserva.numeroComanda}</td>
-                <td className="text-center">{reserva.recibo}</td>
-                <td className="text-center">{reserva.cliente}</td>
-                <td>{reserva.observaciones}</td>
-                <td className="text-center">
-                  <button
-                    className="btn btn-success btn-sm"
-                    onClick={() => handleEntregarReserva(reserva._id)}
-                  >
-                    Entregar
-                  </button>
+          </thead>
+          <tbody>
+            {filteredReservasPendientes.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="text-center">
+                  No hay reservas pendientes que coincidan con los filtros.
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              filteredReservasPendientes.map((reserva) => (
+                <tr key={reserva._id}>
+                  <td className="text-center">
+                    {(() => {
+                      const d = new Date(reserva.fecha);
+                      const localDate = new Date(
+                        d.getUTCFullYear(),
+                        d.getUTCMonth(),
+                        d.getUTCDate()
+                      );
+                      return localDate.toLocaleDateString("es-AR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      });
+                    })()}
+                  </td>
+                  <td className="text-center">{reserva.userId?.fullname}</td>
+                  <td className="text-center">{reserva.motoId?.name}</td>
+                  <td className="text-center">{reserva.numeroComanda}</td>
+                  <td className="text-center">{reserva.recibo}</td>
+                  <td className="text-center">{reserva.cliente}</td>
+                  <td>{reserva.observaciones}</td>
+                  <td className="text-center">
+                    <button
+                      className="btn btn-success btn-sm"
+                      onClick={() => handleEntregarReserva(reserva._id)}
+                    >
+                      Entregar
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       <h3 className="mt-4">Entregados Recientemente</h3>
       <p className="text-muted">
         Las entregas se pueden deshacer durante los próximos 5 minutos.
       </p>
-      <table className="table table-striped table-bordered">
-        <thead className="table-light">
-          <tr>
-            <th className="text-center">Fecha</th>
-            <th className="text-center">Fecha de Entrega</th>
-            <th className="text-center">Vendedor</th>
-            <th className="text-center">Producto / Moto</th>
-            <th className="text-center">Comanda</th>
-            <th className="text-center">Recibo</th>
-            <th className="text-center">Cliente</th>
-            <th>Observaciones</th>
-            <th className="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entregadosRecientemente.length === 0 ? (
+      <div className="row mb-3 align-items-center">
+        <div className="col-md-4 mb-3 mb-md-0">
+          <label htmlFor="sellerFilterEntregados" className="form-label mb-1">
+            Filtrar por Vendedor:
+          </label>
+          <select
+            id="sellerFilterEntregados"
+            className="form-select"
+            value={selectedSellerEntregados}
+            onChange={(e) => setSelectedSellerEntregados(e.target.value)}
+          >
+            <option value="">Todos los Vendedores</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.fullname}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-md-8">
+          <label htmlFor="searchFilterEntregados" className="form-label mb-1">
+            Buscar:
+          </label>
+          <input
+            type="text"
+            id="searchFilterEntregados"
+            className="form-control"
+            placeholder="Buscar por cliente, comanda, recibo, moto o vendedor..."
+            value={searchTermEntregados}
+            onChange={(e) => setSearchTermEntregados(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="table-responsive">
+        <table className="table table-striped table-bordered">
+          <thead className="table-light">
             <tr>
-              <td colSpan="9" className="text-center">
-                No hay entregas recientes para deshacer.
-              </td>
+              <th className="text-center">Fecha</th>
+              <th className="text-center">Fecha de Entrega</th>
+              <th className="text-center">Vendedor</th>
+              <th className="text-center">Producto / Moto</th>
+              <th className="text-center">Comanda</th>
+              <th className="text-center">Recibo</th>
+              <th className="text-center">Cliente</th>
+              <th>Observaciones</th>
+              <th className="text-center">Acciones</th>
             </tr>
-          ) : (
-            entregadosRecientemente.map((reserva) => (
-              <tr key={reserva._id}>
-                <td className="text-center">
-                  {(() => {
-                    const d = new Date(reserva.fecha);
-                    const localDate = new Date(
-                      d.getUTCFullYear(),
-                      d.getUTCMonth(),
-                      d.getUTCDate()
-                    );
-                    return localDate.toLocaleDateString("es-AR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    });
-                  })()}
+          </thead>
+          <tbody>
+            {filteredEntregadosRecientemente.length === 0 ? (
+              <tr>
+                <td colSpan="9" className="text-center">
+                  No hay entregas recientes que coincidan con los filtros.
                 </td>
-                <td className="text-center">
-                  {(() => {
-                    const d = new Date(reserva.fechaEntrega);
-                    return (
-                      d.toLocaleDateString("es-AR", {
+              </tr>
+            ) : (
+              filteredEntregadosRecientemente.map((reserva) => (
+                <tr key={reserva._id}>
+                  <td className="text-center">
+                    {(() => {
+                      const d = new Date(reserva.fecha);
+                      const localDate = new Date(
+                        d.getUTCFullYear(),
+                        d.getUTCMonth(),
+                        d.getUTCDate()
+                      );
+                      return localDate.toLocaleDateString("es-AR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      });
+                    })()}
+                  </td>
+                  <td className="text-center">
+                    {(() => {
+                      const d = new Date(reserva.fechaEntrega);
+                      return d.toLocaleDateString("es-AR", {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
                         hour: "2-digit",
                         minute: "2-digit",
                         hour12: false,
-                      }) +
-                      " " +
-                      d.toLocaleTimeString("es-AR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                      })
-                    );
-                  })()}
-                </td>
-                <td className="text-center">
-                  {reserva.userId?.fullname || "N/A"}
-                </td>
-                <td className="text-center">
-                  {reserva.motoId?.name || "N/A"}
-                  {reserva.motoId?.patente
-                    ? ` / ${reserva.motoId.patente}`
-                    : ""}
-                </td>
-                <td className="text-center">{reserva.numeroComanda}</td>
-                <td className="text-center">{reserva.recibo}</td>
-                <td className="text-center">{reserva.cliente}</td>
-                <td>{reserva.observaciones}</td>
-                <td className="text-center">
-                  <button
-                    className="btn btn-warning btn-sm"
-                    onClick={() => handleDeshacerEntrega(reserva)}
-                  >
-                    Deshacer
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+                      });
+                    })()}
+                  </td>
+                  <td className="text-center">
+                    {reserva.userId?.fullname || "N/A"}
+                  </td>
+                  <td className="text-center">
+                    {reserva.motoId?.name || "N/A"}
+                    {reserva.motoId?.patente
+                      ? ` / ${reserva.motoId.patente}`
+                      : ""}
+                  </td>
+                  <td className="text-center">{reserva.numeroComanda}</td>
+                  <td className="text-center">{reserva.recibo}</td>
+                  <td className="text-center">{reserva.cliente}</td>
+                  <td>{reserva.observaciones}</td>
+                  <td className="text-center">
+                    <button
+                      className="btn btn-warning btn-sm"
+                      onClick={() => handleDeshacerEntrega(reserva)}
+                    >
+                      Deshacer
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

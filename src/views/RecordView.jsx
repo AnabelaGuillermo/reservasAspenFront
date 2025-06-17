@@ -109,7 +109,7 @@ const RecordView = () => {
   };
 
   if (!isAdmin) {
-    return <div>No tienes permiso para ver esta página.</div>;
+    return <div className="record-view-container">No tienes permiso para ver esta página.</div>;
   }
 
   return (
@@ -120,36 +120,40 @@ const RecordView = () => {
           Limpiar Historial
         </button>
       </div>
-      <table className="record-table">
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>Acción</th>
-            <th>Fecha y Hora</th>
-            <th>Detalles</th>
-          </tr>
-        </thead>
-        <tbody>
-          {historial.length > 0 ? (
-            historial.map((record) => (
-              <tr key={record._id}>
-                <td>
-                  {record.usuarioId
-                    ? `${record.usuarioId.fullname} (${record.usuarioId.email})`
-                    : "N/A"}
-                </td>
-                <td>{record.accion}</td>
-                <td>{new Date(record.fechaHora).toLocaleString()}</td>
-                <td>{record.detalles}</td>
-              </tr>
-            ))
-          ) : (
+      <div className="record-table-responsive-wrapper">
+        <table className="record-table">
+          <thead>
             <tr>
-              <td colSpan="4">No hay actividades en el historial.</td>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Fecha y Hora</th>
+              <th>Detalles</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {historial.length > 0 ? (
+              historial.map((record) => (
+                <tr key={record._id}>
+                  <td data-label="Usuario">
+                    {record.usuarioId
+                      ? `${record.usuarioId.fullname} (${record.usuarioId.email})`
+                      : "N/A"}
+                  </td>
+                  <td data-label="Acción">{record.accion}</td>
+                  <td data-label="Fecha y Hora">
+                    {new Date(record.fechaHora).toLocaleString()}
+                  </td>
+                  <td data-label="Detalles">{record.detalles}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">No hay actividades en el historial.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

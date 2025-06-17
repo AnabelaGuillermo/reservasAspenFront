@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import "../css/UsersView.css";
+
 const API_URL_BASE = import.meta.env.VITE_BACKEND_URL;
 const API_URL_USERS = `${API_URL_BASE}/api/v1/users`;
 
@@ -257,10 +259,10 @@ const UsersView = () => {
   }
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4 text-center">TU PERFIL</h2>
+    <div className="users-view-container mt-4">
+      <h2 className="text-center">TU PERFIL</h2>
       {currentUser ? (
-        <div className="card mb-4">
+        <div className="card mb-4 profile-card">
           <div className="card-body">
             <div className="row mb-2">
               <div className="col-md-3 fw-bold">NOMBRE:</div>
@@ -284,9 +286,9 @@ const UsersView = () => {
         </div>
       )}
 
-      <h2 className="mb-4 text-center">USUARIOS</h2>
-      <div className="table-responsive mb-5">
-        <table className="table table-striped table-bordered text-center">
+      <h2 className="text-center">USUARIOS</h2>
+      <div className="users-table-responsive-wrapper">
+        <table className="table table-striped table-bordered text-center users-table">
           <thead className="thead-dark">
             <tr>
               <th>NOMBRE</th>
@@ -299,10 +301,10 @@ const UsersView = () => {
             {users.length > 0 ? (
               users.map((user) => (
                 <tr key={user._id}>
-                  <td>{user.fullname}</td>
-                  <td>{user.email}</td>
-                  <td>{user.isAdmin ? "ADMINISTRADOR" : "VENDEDOR"}</td>
-                  <td>
+                  <td data-label="NOMBRE">{user.fullname}</td>
+                  <td data-label="E-MAIL">{user.email}</td>
+                  <td data-label="ROL">{user.isAdmin ? "ADMINISTRADOR" : "VENDEDOR"}</td>
+                  <td data-label="ACCIONES">
                     <button
                       className="btn btn-warning btn-sm me-2"
                       onClick={() => handleEditRole(user._id, user.isAdmin)}
@@ -329,8 +331,8 @@ const UsersView = () => {
         </table>
       </div>
 
-      <h2 className="mb-4 text-center">AÑADIR USUARIO</h2>
-      <div className="card p-4 bg-dark text-white mb-5">
+      <h2 className="text-center">AÑADIR USUARIO</h2>
+      <div className="card p-4 mb-5 add-user-form-card">
         <form onSubmit={handleAddUser}>
           <div className="mb-3">
             <label htmlFor="fullname" className="form-label">
@@ -376,7 +378,7 @@ const UsersView = () => {
               maxLength="50"
               required
             />
-            <p id="passwordHelpBlock" className="form-text text-white">
+            <p id="passwordHelpBlock" className="form-text">
               Debe tener una minúscula, una mayúscula, un dígito y un carácter
               especial, entre 8 y 15 caracteres.
             </p>

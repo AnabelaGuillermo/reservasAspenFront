@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useSession } from "../stores/useSession";
 import SimpleHeader from "../components/CommonLogin/HeaderLogin";
 import Footer from "../components/Common/Footer";
+
 const decodeJwtPayload = (token) => {
   try {
     const base64Url = token.split(".")[1];

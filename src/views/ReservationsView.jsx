@@ -326,7 +326,7 @@ const ReservationsView = () => {
     return <div className="text-center py-5 text-danger">{error}</div>;
   }
 
-  return (
+return (
     <div className="container mt-4">
       <h2 className="text-center mb-4">Listado de Reservas</h2>
       <div className="row mb-3 align-items-center">
@@ -364,7 +364,7 @@ const ReservationsView = () => {
       </div>
 
       <div className="table-responsive">
-        <table className="table table-striped table-bordered">
+        <table className="table table-striped table-bordered reservations-table">
           <thead className="table-light">
             <tr className="text-center">
               <th>Fecha</th>
@@ -381,10 +381,9 @@ const ReservationsView = () => {
             {filteredReservations.length > 0 ? (
               filteredReservations.map((reserva) => (
                 <tr key={reserva._id}>
-                  <td>
+                  <td data-label="Fecha">
                     {(() => {
                       const d = new Date(reserva.fecha);
-
                       const localDate = new Date(
                         d.getUTCFullYear(),
                         d.getUTCMonth(),
@@ -397,12 +396,12 @@ const ReservationsView = () => {
                       });
                     })()}
                   </td>
-                  <td>{reserva.userId ? reserva.userId.fullname : "N/A"}</td>
-                  <td>{reserva.motoId ? reserva.motoId.name : "N/A"}</td>
-                  <td>{reserva.numeroComanda}</td>
-                  <td>{reserva.recibo}</td>
-                  <td>{reserva.cliente}</td>
-                  <td>
+                  <td data-label="Vendedor">{reserva.userId ? reserva.userId.fullname : "N/A"}</td>
+                  <td data-label="Producto / Moto">{reserva.motoId ? reserva.motoId.name : "N/A"}</td>
+                  <td data-label="Comanda">{reserva.numeroComanda}</td>
+                  <td data-label="Recibo">{reserva.recibo}</td>
+                  <td data-label="Cliente">{reserva.cliente}</td>
+                  <td data-label="Observaciones">
                     {editingReservationId === reserva._id ? (
                       <>
                         <textarea
@@ -431,7 +430,7 @@ const ReservationsView = () => {
                       reserva.observaciones
                     )}
                   </td>
-                  <td className="text-center">
+                  <td data-label="Acciones" className="text-center">
                     {editingReservationId !== reserva._id && (
                       <button
                         className="btn btn-sm btn-warning me-2"
@@ -469,7 +468,7 @@ const ReservationsView = () => {
       {!isAddingManualReservation ? (
         <div className="d-flex justify-content-center">
           <button
-            className="btn btn-success"
+            className="btn btn-success mb-4"
             onClick={handleAddManualReservationClick}
           >
             Añadir Reserva Manual

@@ -1,0 +1,210 @@
+.users-view-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.users-view-container h2 {
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 25px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.profile-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.profile-card .row {
+  margin-bottom: 10px;
+}
+
+.profile-card .fw-bold {
+  color: #555;
+}
+
+.users-table-responsive-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 25px;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+  padding: 12px 15px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+.users-table th {
+  background-color: #343a40;
+  color: #fff;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.users-table .btn {
+  white-space: nowrap;
+  margin: 3px;
+}
+
+.add-user-form-card {
+  background-color: #343a40 !important;
+  color: #fff !important;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 25px;
+}
+
+.add-user-form-card .form-label {
+  color: #f8f9fa;
+}
+
+.add-user-form-card .form-control {
+  background-color: #495057;
+  border-color: #6c757d;
+  color: #fff;
+}
+
+.add-user-form-card .form-control::placeholder {
+  color: #adb5bd;
+}
+
+.add-user-form-card .form-control:focus {
+  background-color: #495057;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  color: #fff;
+}
+
+.add-user-form-card .form-check-label {
+  color: #f8f9fa;
+}
+
+.add-user-form-card .form-text {
+  color: #ced4da !important;
+}
+
+@media (max-width: 768px) {
+  .users-view-container {
+    padding: 10px;
+  }
+
+  .users-view-container h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+  }
+
+  .users-table thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  .users-table tr {
+    display: block;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    background-color: #fff !important;
+  }
+
+  .users-table tr:nth-child(even) {
+    background-color: #fff !important;
+  }
+
+  .users-table td {
+    border: none;
+    position: relative;
+    padding-left: 48%;
+    text-align: right !important;
+    font-size: 0.9em;
+    display: block;
+    white-space: normal !important;
+    overflow-wrap: break-word;
+  }
+
+  .users-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+    color: #666;
+  }
+
+  .users-table td[data-label="ACCIONES"] {
+    text-align: center !important;
+    padding-left: 10px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .users-table td[data-label="ACCIONES"]::before {
+    display: none;
+  }
+
+  .users-table .btn {
+    width: 80%;
+    max-width: 250px;
+    margin: 5px 0;
+  }
+
+  .add-user-form-card {
+    padding: 15px;
+  }
+
+  .add-user-form-card .btn {
+    width: 100%;
+    margin-bottom: 10px;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  .add-user-form-card .d-flex {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 420px) {
+  .users-table td {
+    font-size: 0.8em;
+    padding-left: 45%;
+  }
+
+  .users-table td::before {
+    width: 40%;
+    font-size: 0.9em;
+  }
+
+  .users-table .btn {
+    font-size: 0.75em;
+    padding: 6px 8px;
+  }
+}

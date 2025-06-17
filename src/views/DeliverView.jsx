@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
+import "../css/DeliverView.css";
 
 const DELAY_TIEMPO_ENTREGADO = 300000;
 const LOCAL_STORAGE_KEY = "entregadosRecientemente";
@@ -370,7 +371,7 @@ const DeliverView = () => {
         </div>
       </div>
       <div className="table-responsive">
-        <table className="table table-striped table-bordered">
+        <table className="deliver-table">
           <thead className="table-light">
             <tr>
               <th className="text-center">Fecha</th>
@@ -393,7 +394,7 @@ const DeliverView = () => {
             ) : (
               filteredReservasPendientes.map((reserva) => (
                 <tr key={reserva._id}>
-                  <td className="text-center">
+                  <td data-label="Fecha" className="text-center">
                     {(() => {
                       const d = new Date(reserva.fecha);
                       const localDate = new Date(
@@ -408,13 +409,23 @@ const DeliverView = () => {
                       });
                     })()}
                   </td>
-                  <td className="text-center">{reserva.userId?.fullname}</td>
-                  <td className="text-center">{reserva.motoId?.name}</td>
-                  <td className="text-center">{reserva.numeroComanda}</td>
-                  <td className="text-center">{reserva.recibo}</td>
-                  <td className="text-center">{reserva.cliente}</td>
-                  <td>{reserva.observaciones}</td>
-                  <td className="text-center">
+                  <td data-label="Vendedor" className="text-center">
+                    {reserva.userId?.fullname}
+                  </td>
+                  <td data-label="Producto / Moto" className="text-center">
+                    {reserva.motoId?.name}
+                  </td>
+                  <td data-label="Comanda" className="text-center">
+                    {reserva.numeroComanda}
+                  </td>
+                  <td data-label="Recibo" className="text-center">
+                    {reserva.recibo}
+                  </td>
+                  <td data-label="Cliente" className="text-center">
+                    {reserva.cliente}
+                  </td>
+                  <td data-label="Observaciones">{reserva.observaciones}</td>
+                  <td data-label="Acciones" className="text-center">
                     <button
                       className="btn btn-success btn-sm"
                       onClick={() => handleEntregarReserva(reserva._id)}
@@ -467,7 +478,7 @@ const DeliverView = () => {
         </div>
       </div>
       <div className="table-responsive">
-        <table className="table table-striped table-bordered">
+        <table className="deliver-table">
           <thead className="table-light">
             <tr>
               <th className="text-center">Fecha</th>
@@ -491,7 +502,7 @@ const DeliverView = () => {
             ) : (
               filteredEntregadosRecientemente.map((reserva) => (
                 <tr key={reserva._id}>
-                  <td className="text-center">
+                  <td data-label="Fecha" className="text-center">
                     {(() => {
                       const d = new Date(reserva.fecha);
                       const localDate = new Date(
@@ -506,7 +517,7 @@ const DeliverView = () => {
                       });
                     })()}
                   </td>
-                  <td className="text-center">
+                  <td data-label="Fecha de Entrega" className="text-center">
                     {(() => {
                       const d = new Date(reserva.fechaEntrega);
                       return d.toLocaleDateString("es-AR", {
@@ -519,20 +530,26 @@ const DeliverView = () => {
                       });
                     })()}
                   </td>
-                  <td className="text-center">
+                  <td data-label="Vendedor" className="text-center">
                     {reserva.userId?.fullname || "N/A"}
                   </td>
-                  <td className="text-center">
+                  <td data-label="Producto / Moto" className="text-center">
                     {reserva.motoId?.name || "N/A"}
                     {reserva.motoId?.patente
                       ? ` / ${reserva.motoId.patente}`
                       : ""}
                   </td>
-                  <td className="text-center">{reserva.numeroComanda}</td>
-                  <td className="text-center">{reserva.recibo}</td>
-                  <td className="text-center">{reserva.cliente}</td>
-                  <td>{reserva.observaciones}</td>
-                  <td className="text-center">
+                  <td data-label="Comanda" className="text-center">
+                    {reserva.numeroComanda}
+                  </td>
+                  <td data-label="Recibo" className="text-center">
+                    {reserva.recibo}
+                  </td>
+                  <td data-label="Cliente" className="text-center">
+                    {reserva.cliente}
+                  </td>
+                  <td data-label="Observaciones">{reserva.observaciones}</td>
+                  <td data-label="Acciones" className="text-center">
                     <button
                       className="btn btn-warning btn-sm"
                       onClick={() => handleDeshacerEntrega(reserva)}

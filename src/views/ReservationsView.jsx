@@ -364,7 +364,7 @@ return (
       </div>
 
       <div className="table-responsive">
-        <table className="table table-striped table-bordered reservations-table">
+        <table className="deliver-table">
           <thead className="table-light">
             <tr className="text-center">
               <th>Fecha</th>

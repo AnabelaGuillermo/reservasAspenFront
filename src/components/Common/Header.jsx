@@ -27,6 +27,15 @@ const Header = () => {
     }
   };
 
+  const closeNavbar = () => {
+    const navbarToggler = document.querySelector(".navbar-toggler");
+    const navbarCollapse = document.querySelector("#navbarNav");
+
+    if (navbarToggler && navbarCollapse.classList.contains("show")) {
+      navbarToggler.click();
+    }
+  };
+
   const isAdmin = user ? user.isAdmin : false;
 
   return (
@@ -36,6 +45,7 @@ const Header = () => {
           <Link
             className="navbar-brand"
             to={isLoggedIn ? (isAdmin ? "/Available" : "/Reservar") : "/"}
+            onClick={closeNavbar}
           >
             <img
               className="logoHeader"
@@ -60,7 +70,11 @@ const Header = () => {
             <ul className="navbar-nav ms-auto text-center">
               {!isLoggedIn && (
                 <li className="nav-item">
-                  <NavLink className="nav-link ps-3 pe-3" to="/login">
+                  <NavLink
+                    className="nav-link ps-3 pe-3"
+                    to="/login"
+                    onClick={closeNavbar}
+                  >
                     Iniciar sesión
                   </NavLink>
                 </li>
@@ -69,27 +83,47 @@ const Header = () => {
               {isLoggedIn && isAdmin && (
                 <>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/Available">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Available"
+                      onClick={closeNavbar}
+                    >
                       Cargar disponible
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/Reservas">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Reservas"
+                      onClick={closeNavbar}
+                    >
                       Reservas
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/Entregar">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Entregar"
+                      onClick={closeNavbar}
+                    >
                       Entregar
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/Usuarios">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Usuarios"
+                      onClick={closeNavbar}
+                    >
                       Usuarios
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/Historial">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Historial"
+                      onClick={closeNavbar}
+                    >
                       Historial
                     </NavLink>
                   </li>
@@ -99,17 +133,29 @@ const Header = () => {
               {isLoggedIn && !isAdmin && (
                 <>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/Reservar">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Reservar"
+                      onClick={closeNavbar}
+                    >
                       Reservar
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/Mis reservas">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Mis reservas"
+                      onClick={closeNavbar}
+                    >
                       Mis reservas
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink className="nav-link ps-3 pe-3" to="/Mi perfil">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Mi perfil"
+                      onClick={closeNavbar}
+                    >
                       Mi perfil
                     </NavLink>
                   </li>

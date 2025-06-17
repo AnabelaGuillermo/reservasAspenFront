@@ -157,8 +157,7 @@ const AvailableView = () => {
 
       <form
         onSubmit={handleSubmit}
-        className="p-4 mb-5"
-        style={{ backgroundColor: "#111", color: "#fff" }}
+        className="p-4 mb-5 bg-dark text-white"
       >
         <div className="row align-items-end">
           <div className="col-md-6 mb-3">
@@ -173,7 +172,7 @@ const AvailableView = () => {
           </div>
 
           <div className="col-md-2 mb-3">
-            <label className="form-label">CANTIDAD</label>
+            <label className="form-label text-center">CANTIDAD</label>
             <input
               type="number"
               className="form-control"
@@ -205,9 +204,9 @@ const AvailableView = () => {
         <table className="table table-striped">
           <thead>
             <tr>
-              <th>PRODUCTO / MOTO</th>
-              <th className="text-center">CANTIDAD</th>
-              <th className="text-end">ACCIONES</th>
+              <th className="bg-dark text-white">PRODUCTO / MOTO</th>
+              <th className="text-center bg-dark text-white">CANTIDAD</th>
+              <th className="text-center bg-dark text-white">ACCIONES</th>
             </tr>
           </thead>
 
@@ -228,7 +227,7 @@ const AvailableView = () => {
                       moto.quantity
                     )}
                   </td>
-                  <td className="text-end">
+                  <td className="text-center">
                     {editingId === moto._id ? (
                       <>
                         <button

@@ -146,6 +146,11 @@ const AvailableView = () => {
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setNewQuantity("");
+  };
+
   return (
     <div className="container py-4">
       <h3 className="text-center mb-4">CARGAR DISPONIBLE</h3>
@@ -225,28 +230,38 @@ const AvailableView = () => {
                   </td>
                   <td className="text-end">
                     {editingId === moto._id ? (
-                      <button
-                        className="btn btn-sm btn-success me-2"
-                        onClick={() => handleSaveQuantity(moto._id)}
-                      >
-                        Guardar
-                      </button>
+                      <>
+                        <button
+                          className="btn btn-sm btn-success me-2"
+                          onClick={() => handleSaveQuantity(moto._id)}
+                        >
+                          Guardar
+                        </button>
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          onClick={handleCancelEdit}
+                        >
+                          Cancelar
+                        </button>
+                      </>
                     ) : (
-                      <button
-                        className="btn btn-sm btn-warning me-2"
-                        onClick={() =>
-                          handleEditQuantity(moto._id, moto.quantity)
-                        }
-                      >
-                        Editar
-                      </button>
+                      <>
+                        <button
+                          className="btn btn-sm btn-warning me-2"
+                          onClick={() =>
+                            handleEditQuantity(moto._id, moto.quantity)
+                          }
+                        >
+                          Editar
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleDelete(moto._id)}
+                        >
+                          Eliminar
+                        </button>
+                      </>
                     )}
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDelete(moto._id)}
-                    >
-                      Eliminar
-                    </button>
                   </td>
                 </tr>
               ))}

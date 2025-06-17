@@ -1,28 +1,59 @@
-import { Link, NavLink } from "react-router-dom";
-import { useRef } from "react";
-
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useRef, useEffect } from "react";
+import Swal from "sweetalert2";
+import { useSession } from "../../stores/useSession";
 import "../../css/Header.css";
 
 const Header = () => {
-  const navRef = useRef(null);
+  const { user, isLoggedIn, logout } = useSession();
+  const navRef = useRef();
+  const navigate = useNavigate();
 
-  const handleNavLinkClick = () => {
-    if (navRef.current.classList.contains("show")) {
-      navRef.current.classList.remove("show");
+  const handleLogout = async () => {
+    const action = await Swal.fire({
+      icon: "question",
+      title: "Atención",
+      text: "¿Está seguro que desea cerrar sesión?",
+      confirmButtonText: "Sí, salir",
+      cancelButtonText: "No, cancelar",
+      showCancelButton: true,
+      confirmButtonColor: "#28a745",
+      cancelButtonColor: "#dc3545",
+    });
+
+    if (action.isConfirmed) {
+      logout();
+      navigate("/login");
     }
   };
+
+  const closeNavbar = () => {
+    const navbarToggler = document.querySelector(".navbar-toggler");
+    const navbarCollapse = document.querySelector("#navbarNav");
+
+    if (navbarToggler && navbarCollapse.classList.contains("show")) {
+      navbarToggler.click();
+    }
+  };
+
+  const isAdmin = user ? user.isAdmin : false;
 
   return (
     <header>
       <nav className="navbar navbar-expand-lg bg-da fixed-top">
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
+          <Link
+            className="navbar-brand"
+            to={isLoggedIn ? (isAdmin ? "/Available" : "/Reservar") : "/"}
+            onClick={closeNavbar}
+          >
             <img
               className="logoHeader"
               src="/Logo_Aspen.png"
               alt="Logo Aspen"
             />
           </Link>
+
           <button
             aria-controls="navbarNav"
             aria-expanded="false"
@@ -34,46 +65,110 @@ const Header = () => {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
+
           <div className="collapse navbar-collapse" id="navbarNav" ref={navRef}>
             <ul className="navbar-nav ms-auto text-center">
-              <li className="nav-item">
-                <NavLink
-                  className="nav-link ps-3 pe-3"
-                  to="/login"
-                  onClick={handleNavLinkClick}
-                >
-                  Iniciar sesión
-                </NavLink>
-              </li>
-              {[
-                "/",
-                "/Reservas",
-                "/Entregar",
-                "/Mi perfil / Usuarios",
-                "/Historial",
-                "/Reservar",
-                "/Mis reservas",
-                "/Mi perfil",
-              ].map((path, index) => (
-                <li className="nav-item" key={index}>
+              {!isLoggedIn && (
+                <li className="nav-item">
                   <NavLink
-                    className={({ isActive }) =>
-                      isActive
-                        ? "nav-link active ps-3 pe-3"
-                        : "nav-link ps-3 pe-3"
-                    }
-                    to={path}
-                    onClick={handleNavLinkClick}
+                    className="nav-link ps-3 pe-3"
+                    to="/login"
+                    onClick={closeNavbar}
                   >
-                    {path === "/" ? "Cargar disponible" : path.slice(1)}
+                    Iniciar sesión
                   </NavLink>
                 </li>
-              ))}
-              <li className="nav-item">
-                <button className="btn button-logout">
-                  Cerrar sesión
-                </button>
-              </li>
+              )}
+
+              {isLoggedIn && isAdmin && (
+                <>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Available"
+                      onClick={closeNavbar}
+                    >
+                      Cargar disponible
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Reservas"
+                      onClick={closeNavbar}
+                    >
+                      Reservas
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Entregar"
+                      onClick={closeNavbar}
+                    >
+                      Entregar
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Usuarios"
+                      onClick={closeNavbar}
+                    >
+                      Usuarios
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Historial"
+                      onClick={closeNavbar}
+                    >
+                      Historial
+                    </NavLink>
+                  </li>
+                </>
+              )}
+
+              {isLoggedIn && !isAdmin && (
+                <>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Reservar"
+                      onClick={closeNavbar}
+                    >
+                      Reservar
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Mis reservas"
+                      onClick={closeNavbar}
+                    >
+                      Mis reservas
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link ps-3 pe-3"
+                      to="/Mi perfil"
+                      onClick={closeNavbar}
+                    >
+                      Mi perfil
+                    </NavLink>
+                  </li>
+                </>
+              )}
+
+              {isLoggedIn && (
+                <li className="nav-item">
+                  <button className="btn button-logout" onClick={handleLogout}>
+                    Cerrar sesión
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         </div>

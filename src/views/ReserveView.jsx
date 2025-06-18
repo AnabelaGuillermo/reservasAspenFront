@@ -5,6 +5,7 @@ import "../css/ReserveView.css";
 
 const ReserveView = () => {
   const [availableMotos, setAvailableMotos] = useState([]);
+  const [allReservas, setAllReservas] = useState([]);
   const [selectedMotoToReserve, setSelectedMotoToReserve] = useState(null);
   const [recibo, setRecibo] = useState("");
   const [numeroComanda, setNumeroComanda] = useState("");
@@ -47,6 +48,7 @@ const ReserveView = () => {
     }
 
     fetchAvailableMotos();
+    fetchAllReservas();
   }, []);
 
   const fetchAvailableMotos = async () => {
@@ -64,6 +66,23 @@ const ReserveView = () => {
       setError("Error al cargar la lista de motos disponibles.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllReservas = async () => {
+    try {
+      const res = await fetch(API_URL_RESERVAS, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setAllReservas(data.data || []);
+    } catch (err) {
+      console.error("Error al obtener todas las reservas", err);
     }
   };
 
@@ -88,6 +107,30 @@ const ReserveView = () => {
         icon: "warning",
         title: "¡Atención!",
         text: "Por favor, completa todos los campos requeridos (Recibo, Número de Comanda, Cliente).",
+      });
+      return;
+    }
+
+    const isDuplicateRecibo = allReservas.some(
+      (reserva) => reserva.recibo === recibo && reserva.isActive
+    );
+    const isDuplicateComanda = allReservas.some(
+      (reserva) => reserva.numeroComanda === numeroComanda && reserva.isActive
+    );
+
+    if (isDuplicateRecibo || isDuplicateComanda) {
+      let errorMessage = "Ya existe una reserva con ";
+      if (isDuplicateRecibo && isDuplicateComanda) {
+        errorMessage += "este número de recibo y este número de comanda.";
+      } else if (isDuplicateRecibo) {
+        errorMessage += "este número de recibo.";
+      } else {
+        errorMessage += "este número de comanda.";
+      }
+      Swal.fire({
+        icon: "error",
+        title: "¡Error!",
+        text: errorMessage,
       });
       return;
     }
@@ -153,6 +196,7 @@ const ReserveView = () => {
         setCliente("");
         setObservaciones("");
         fetchAvailableMotos();
+        fetchAllReservas();
       });
     } catch (error) {
       console.error("Error al realizar la reserva", error);
@@ -189,9 +233,9 @@ const ReserveView = () => {
         <table className="table table-striped">
           <thead>
             <tr>
-              <th>PRODUCTO / MOTO</th>
-              <th className="text-center">DISPONIBLE</th>
-              <th className="text-end">ACCIONES</th>
+              <th className="bg-dark text-white">PRODUCTO / MOTO</th>
+              <th className="text-center bg-dark text-white">DISPONIBLE</th>
+              <th className="text-end bg-dark text-white">ACCIONES</th>
             </tr>
           </thead>
           <tbody>

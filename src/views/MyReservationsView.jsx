@@ -62,14 +62,14 @@ const MyReservationsView = () => {
         <>
           <div className="table-responsive d-none d-md-block">
             <table className="table table-striped table-bordered text-center align-middle">
-              <thead className="table-light">
+              <thead>
                 <tr>
-                  <th>FECHA</th>
-                  <th>PRODUCTO / MOTO</th>
-                  <th>COMANDA</th>
-                  <th>RECIBO</th>
-                  <th>CLIENTE</th>
-                  <th>OBSERVACIONES</th>
+                  <th className="bg-dark text-white">FECHA</th>
+                  <th className="bg-dark text-white">PRODUCTO / MOTO</th>
+                  <th className="bg-dark text-white">COMANDA</th>
+                  <th className="bg-dark text-white">RECIBO</th>
+                  <th className="bg-dark text-white">CLIENTE</th>
+                  <th className="bg-dark text-white">OBSERVACIONES</th>
                 </tr>
               </thead>
               <tbody>

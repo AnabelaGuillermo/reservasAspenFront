@@ -228,6 +228,31 @@ const ReservationsView = () => {
       return;
     }
 
+    const isDuplicateRecibo = reservations.some(
+      (reserva) => reserva.recibo === newReservation.recibo && reserva.isActive
+    );
+    const isDuplicateComanda = reservations.some(
+      (reserva) =>
+        reserva.numeroComanda === newReservation.comanda && reserva.isActive
+    );
+
+    if (isDuplicateRecibo || isDuplicateComanda) {
+      let errorMessage = "Ya existe una reserva con ";
+      if (isDuplicateRecibo && isDuplicateComanda) {
+        errorMessage += "este número de recibo y este número de comanda.";
+      } else if (isDuplicateRecibo) {
+        errorMessage += "este número de recibo.";
+      } else {
+        errorMessage += "este número de comanda.";
+      }
+      Swal.fire({
+        icon: "error",
+        title: "¡Error!",
+        text: errorMessage,
+      });
+      return;
+    }
+
     try {
       const now = new Date();
 
@@ -326,7 +351,7 @@ const ReservationsView = () => {
     return <div className="text-center py-5 text-danger">{error}</div>;
   }
 
-return (
+  return (
     <div className="container mt-4">
       <h2 className="text-center mb-4">Listado de Reservas</h2>
       <div className="row mb-3 align-items-center">
@@ -396,8 +421,12 @@ return (
                       });
                     })()}
                   </td>
-                  <td data-label="Vendedor">{reserva.userId ? reserva.userId.fullname : "N/A"}</td>
-                  <td data-label="Producto / Moto">{reserva.motoId ? reserva.motoId.name : "N/A"}</td>
+                  <td data-label="Vendedor">
+                    {reserva.userId ? reserva.userId.fullname : "N/A"}
+                  </td>
+                  <td data-label="Producto / Moto">
+                    {reserva.motoId ? reserva.motoId.name : "N/A"}
+                  </td>
                   <td data-label="Comanda">{reserva.numeroComanda}</td>
                   <td data-label="Recibo">{reserva.recibo}</td>
                   <td data-label="Cliente">{reserva.cliente}</td>

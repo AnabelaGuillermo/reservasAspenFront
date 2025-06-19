@@ -24,9 +24,6 @@ export const setupGlobalFetchInterceptor = () => {
           console.error(`Global Fetch Interceptor: Error ${response.status}. Sesión expirada o no autorizada.`);
           const { logout } = useSession.getState();
           logout();
-          if (window.location.pathname !== "/login") {
-             window.location.href = "/login";
-          }
         }
 
         const error = new Error(errorData.message || `Error HTTP: ${response.status}`);

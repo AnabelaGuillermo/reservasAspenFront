@@ -1,20 +1,25 @@
 import { useSession } from '../stores/useSession';
 import { router } from '../constants/routes';
-
 const originalFetch = window.fetch;
 
-export const setupGlobalFetchInterceptor = () => {
+export const setupGlobalFetchInterceptor = (timeout = 15000) => { 
   window.fetch = async (...args) => {
     let [resource, config] = args;
     const token = localStorage.getItem('token');
     const headers = new Headers(config?.headers || {});
+
     if (token && !headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${token}`);
     }
-    config = { ...config, headers };
+
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
+    config = { ...config, headers, signal: controller.signal };
 
     try {
       const response = await originalFetch(resource, config);
+      clearTimeout(id);
 
       if (!response.ok) {
         const clonedResponse = response.clone();
@@ -24,17 +29,31 @@ export const setupGlobalFetchInterceptor = () => {
           console.error(`Global Fetch Interceptor: Error ${response.status}. Sesión expirada o no autorizada.`);
           const { logout } = useSession.getState();
           logout();
+          if (window.location.pathname !== "/") {
+            window.location.href = "/";
+          }
         }
 
         const error = new Error(errorData.message || `Error HTTP: ${response.status}`);
         error.status = response.status;
         throw error;
-
       }
       return response;
 
     } catch (error) {
-      console.error("Global Fetch Interceptor: Error de red o en la petición:", error);
+      clearTimeout(id);
+
+      if (error.name === 'AbortError') {
+        console.error("Global Fetch Interceptor: La petición excedió el tiempo límite (timeout).", error);
+        const { logout } = useSession.getState();
+        logout();
+        if (window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+        throw new Error('Petición cancelada por timeout.');
+      } else {
+        console.error("Global Fetch Interceptor: Error de red o en la petición:", error);
+      }
       throw error;
     }
   };

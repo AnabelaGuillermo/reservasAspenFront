@@ -63,7 +63,10 @@ const ReservationsView = () => {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setUsers(data.data || []);
+      const sortedUsers = (data.data || []).sort((a, b) =>
+        a.fullname.localeCompare(b.fullname)
+      );
+      setUsers(sortedUsers);
     } catch (err) {
       console.error("Error al obtener los vendedores:", err);
       Swal.fire({
@@ -85,7 +88,10 @@ const ReservationsView = () => {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setMotos(data.data || []);
+      const sortedMotos = (data.data || []).sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      setMotos(sortedMotos);
     } catch (err) {
       console.error("Error al obtener las motos:", err);
       Swal.fire({

@@ -37,6 +37,20 @@ const MyReservationsView = () => {
     fetchReservas();
   }, []);
 
+  const formatReservationDate = (dateString) => {
+    const d = new Date(dateString);
+    const localDate = new Date(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      d.getUTCDate()
+    );
+    return localDate.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
   if (loading)
     return (
       <div className="container mt-4 text-center">
@@ -75,11 +89,8 @@ const MyReservationsView = () => {
               <tbody>
                 {reservas.map((reserva) => (
                   <tr key={reserva._id}>
-                    <td>{new Date(reserva.fecha).toLocaleDateString()}</td>
-                    <td>
-                      {reserva.motoId?.name ||
-                        "N/A"}{" "}
-                    </td>
+                    <td>{formatReservationDate(reserva.fecha)}</td>
+                    <td>{reserva.motoId?.name || "N/A"}</td>
                     <td>{reserva.numeroComanda}</td>
                     <td>{reserva.recibo}</td>
                     <td>{reserva.cliente}</td>
@@ -94,7 +105,7 @@ const MyReservationsView = () => {
               <div className="card mb-3" key={reserva._id}>
                 <div className="card-body">
                   <h5 className="card-title">
-                    Reserva del {new Date(reserva.fecha).toLocaleDateString()}
+                    Reserva del {formatReservationDate(reserva.fecha)}
                   </h5>
                   <p className="card-text">
                     <strong>Producto / Moto:</strong>{" "}

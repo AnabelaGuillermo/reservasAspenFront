@@ -2,7 +2,7 @@ import { useSession } from '../stores/useSession';
 import { router } from '../constants/routes';
 const originalFetch = window.fetch;
 
-export const setupGlobalFetchInterceptor = (timeout = 15000) => { 
+export const setupGlobalFetchInterceptor = (timeout = 10000) => { 
   window.fetch = async (...args) => {
     let [resource, config] = args;
     const token = localStorage.getItem('token');

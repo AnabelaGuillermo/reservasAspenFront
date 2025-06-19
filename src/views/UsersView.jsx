@@ -69,11 +69,19 @@ const UsersView = () => {
 
       const data = await response.json();
 
+      let usersToDisplay = data.data;
+
       if (loggedInUser) {
-        setUsers(data.data.filter((user) => user._id !== loggedInUser._id));
-      } else {
-        setUsers(data.data);
+        usersToDisplay = usersToDisplay.filter(
+          (user) => user._id !== loggedInUser._id
+        );
       }
+
+      const sortedUsers = usersToDisplay.sort((a, b) =>
+        a.fullname.localeCompare(b.fullname)
+      );
+
+      setUsers(sortedUsers);
     } catch (err) {
       console.error("Error al obtener usuarios:", err);
       setError(err.message);
@@ -303,7 +311,9 @@ const UsersView = () => {
                 <tr key={user._id}>
                   <td data-label="NOMBRE">{user.fullname}</td>
                   <td data-label="E-MAIL">{user.email}</td>
-                  <td data-label="ROL">{user.isAdmin ? "ADMINISTRADOR" : "VENDEDOR"}</td>
+                  <td data-label="ROL">
+                    {user.isAdmin ? "ADMINISTRADOR" : "VENDEDOR"}
+                  </td>
                   <td data-label="ACCIONES">
                     <button
                       className="btn btn-warning btn-sm me-2"

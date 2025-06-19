@@ -16,7 +16,10 @@ const AvailableView = () => {
       const res = await fetch(API_URL);
       const data = await res.json();
       const availableData = data.data || [];
-      setAvailable(availableData);
+      const sortedAvailableData = availableData.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      setAvailable(sortedAvailableData);
     } catch (error) {
       console.error("Error al obtener disponibles", error);
       setAvailable([]);
@@ -155,10 +158,7 @@ const AvailableView = () => {
     <div className="container py-4">
       <h3 className="text-center mb-4">CARGAR DISPONIBLE</h3>
 
-      <form
-        onSubmit={handleSubmit}
-        className="p-4 mb-5 bg-dark text-white"
-      >
+      <form onSubmit={handleSubmit} className="p-4 mb-5 bg-dark text-white">
         <div className="row align-items-end">
           <div className="col-md-6 mb-3">
             <label className="form-label">PRODUCTO / MOTO</label>

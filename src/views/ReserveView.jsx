@@ -60,7 +60,10 @@ const ReserveView = () => {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setAvailableMotos(data.data || []);
+      const sortedMotos = (data.data || []).sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      setAvailableMotos(sortedMotos);
     } catch (err) {
       console.error("Error al obtener motos disponibles", err);
       setError("Error al cargar la lista de motos disponibles.");

@@ -1,15 +1,15 @@
-import { useSession } from '../stores/useSession';
-import { router } from '../constants/routes';
+import { useSession } from "../stores/useSession";
+
 const originalFetch = window.fetch;
 
-export const setupGlobalFetchInterceptor = (timeout = 10000) => { 
+export const setupGlobalFetchInterceptor = (timeout = 10000) => {
   window.fetch = async (...args) => {
     let [resource, config] = args;
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     const headers = new Headers(config?.headers || {});
 
-    if (token && !headers.has('Authorization')) {
-      headers.set('Authorization', `Bearer ${token}`);
+    if (token && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${token}`);
     }
 
     const controller = new AbortController();
@@ -23,36 +23,47 @@ export const setupGlobalFetchInterceptor = (timeout = 10000) => {
 
       if (!response.ok) {
         const clonedResponse = response.clone();
-        const errorData = await clonedResponse.json().catch(() => ({ message: 'Error desconocido', error: 'No se pudo parsear JSON' }));
+        const errorData = await clonedResponse
+          .json()
+          .catch(() => ({
+            message: "Error desconocido",
+            error: "No se pudo parsear JSON",
+          }));
 
         if (response.status === 401 || response.status === 403) {
-          console.error(`Global Fetch Interceptor: Error ${response.status}. Sesión expirada o no autorizada.`);
+          console.error(
+            `Global Fetch Interceptor: Error ${response.status}. Sesión expirada o no autorizada.`
+          );
           const { logout } = useSession.getState();
           logout();
-          if (window.location.pathname !== "/") {
-            window.location.href = "/";
-          }
         }
 
-        const error = new Error(errorData.message || `Error HTTP: ${response.status}`);
+        const error = new Error(
+          errorData.message || `Error HTTP: ${response.status}`
+        );
         error.status = response.status;
         throw error;
       }
       return response;
-
     } catch (error) {
       clearTimeout(id);
 
-      if (error.name === 'AbortError') {
-        console.error("Global Fetch Interceptor: La petición excedió el tiempo límite (timeout).", error);
+      if (error.name === "AbortError") {
+        console.error(
+          "Global Fetch Interceptor: La petición excedió el tiempo límite (timeout).",
+          error
+        );
         const { logout } = useSession.getState();
         logout();
         if (window.location.pathname !== "/") {
           window.location.href = "/";
         }
-        throw new Error('Petición cancelada por timeout.');
+        throw new Error("Petición cancelada por timeout.");
       } else {
-        console.error("Global Fetch Interceptor: Error de red o en la petición:", error);
+        console.error(
+          "Global Fetch Interceptor: Error de red o en la petición:",
+          error
+        );
       }
       throw error;
     }

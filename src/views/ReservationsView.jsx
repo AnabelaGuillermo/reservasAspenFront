@@ -88,7 +88,8 @@ const ReservationsView = () => {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      const sortedMotos = (data.data || []).sort((a, b) =>
+      const motosWithStock = (data.data || []).filter(moto => moto.quantity > 0);
+      const sortedMotos = motosWithStock.sort((a, b) =>
         a.name.localeCompare(b.name)
       );
       setMotos(sortedMotos);
@@ -183,6 +184,7 @@ const ReservationsView = () => {
           }
 
           fetchReservations();
+          fetchAvailableMotos(); 
         } catch (err) {
           console.error(
             "Error general al eliminar la reserva o devolver el stock:",
@@ -306,6 +308,7 @@ const ReservationsView = () => {
       }).then(() => {
         setIsAddingManualReservation(false);
         fetchReservations();
+        fetchAvailableMotos(); 
       });
     } catch (error) {
       console.error("Error al crear la reserva manual", error);
@@ -550,7 +553,7 @@ const ReservationsView = () => {
               <option value="">Seleccionar Producto</option>
               {motos.map((moto) => (
                 <option key={moto._id} value={moto._id}>
-                  {moto.name}
+                  {moto.name} (Stock: {moto.quantity})
                 </option>
               ))}
             </select>

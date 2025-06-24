@@ -357,6 +357,8 @@ const ReservationsView = () => {
     return <div className="text-center py-5 text-danger">{error}</div>;
   }
 
+  const totalFilteredReservations = filteredReservations.length;
+
   return (
     <div className="container mt-4">
       <h2 className="text-center mb-4">Listado de Reservas</h2>
@@ -498,7 +500,10 @@ const ReservationsView = () => {
           </tbody>
         </table>
       </div>
-
+      <div className="total-reservations-summary mt-3 p-3 bg-light rounded text-center">
+        <h4>Total de Reservas: {totalFilteredReservations}</h4>
+      </div>
+      <hr className="my-4 mb-5" />
       <h3 className="text-center mt-4">Añadir Reserva Manual</h3>
       {!isAddingManualReservation ? (
         <div className="d-flex justify-content-center">

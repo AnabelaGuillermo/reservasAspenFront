@@ -14,6 +14,7 @@ const ReserveView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [loggedInUserId, setLoggedInUserId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const API_URL_MOTOS = import.meta.env.VITE_BACKEND_URL + "/api/v1/motos";
   const API_URL_RESERVAS =
@@ -219,6 +220,10 @@ const ReserveView = () => {
     setObservaciones("");
   };
 
+  const filteredAvailableMotos = availableMotos.filter((moto) =>
+    moto.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
     return (
       <div className="text-center py-5">Cargando motos disponibles...</div>
@@ -230,8 +235,22 @@ const ReserveView = () => {
   }
 
   return (
-    <div className="container py-4">
-      <h3 className="text-center mb-4">DISPONIBLE PARA RESERVAR</h3>
+    <div className="container py-4 mt-4">
+      <h2 className="text-center mb-4">DISPONIBLE PARA RESERVAR</h2>
+      <div className="mb-3">
+        <label htmlFor="searchMoto" className="form-label">
+          Buscar Producto / Moto:
+        </label>
+        <input
+          type="text"
+          id="searchMoto"
+          className="form-control"
+          placeholder="Escribe para buscar por nombre..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       <div className="table-responsive mb-4">
         <table className="table table-striped">
           <thead>
@@ -242,25 +261,26 @@ const ReserveView = () => {
             </tr>
           </thead>
           <tbody>
-            {availableMotos.map((moto) => (
-              <tr key={moto._id}>
-                <td>{moto.name}</td>
-                <td className="text-center">{moto.quantity}</td>
-                <td className="text-end">
-                  <button
-                    className="btn btn-sm btn-success"
-                    onClick={() => handleReservarClick(moto)}
-                    disabled={moto.quantity === 0}
-                  >
-                    RESERVAR
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {availableMotos.length === 0 && (
+            {filteredAvailableMotos.length > 0 ? (
+              filteredAvailableMotos.map((moto) => (
+                <tr key={moto._id}>
+                  <td>{moto.name}</td>
+                  <td className="text-center">{moto.quantity}</td>
+                  <td className="text-end">
+                    <button
+                      className="btn btn-sm btn-success"
+                      onClick={() => handleReservarClick(moto)}
+                      disabled={moto.quantity === 0}
+                    >
+                      RESERVAR
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr>
                 <td colSpan="3" className="text-center">
-                  No hay productos disponibles para reservar.
+                  No hay productos disponibles que coincidan con la búsqueda.
                 </td>
               </tr>
             )}

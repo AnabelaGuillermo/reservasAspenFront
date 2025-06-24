@@ -113,7 +113,7 @@ const RecordView = () => {
   }
 
   return (
-    <div className="record-view-container">
+    <div className="record-view-container mt-4">
       <div className="record-view-header">
         <h2>Historial de Actividades</h2>
         <button onClick={handleClearHistory} className="clear-history-button">

@@ -5,6 +5,7 @@ const MyReservationsView = () => {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const API_URL_RESERVAS =
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
@@ -51,6 +52,17 @@ const MyReservationsView = () => {
     });
   };
 
+  const filteredReservas = reservas.filter((reserva) => {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    const matchesCliente = reserva.cliente.toLowerCase().includes(lowerCaseSearchTerm);
+    const matchesComanda = reserva.numeroComanda.toLowerCase().includes(lowerCaseSearchTerm);
+    const matchesRecibo = reserva.recibo.toLowerCase().includes(lowerCaseSearchTerm);
+    const matchesMoto = reserva.motoId?.name.toLowerCase().includes(lowerCaseSearchTerm);
+    const matchesObservaciones = reserva.observaciones?.toLowerCase().includes(lowerCaseSearchTerm);
+
+    return matchesCliente || matchesComanda || matchesRecibo || matchesMoto || matchesObservaciones;
+  });
+
   if (loading)
     return (
       <div className="container mt-4 text-center">
@@ -66,11 +78,24 @@ const MyReservationsView = () => {
 
   return (
     <div className="container mt-4">
-      <h3 className="text-center mb-4">MIS RESERVAS</h3>
+      <h2 className="text-center mb-4">Mis reservas</h2>
+      <div className="mb-3">
+        <label htmlFor="searchReservation" className="form-label">
+          Buscar en mis reservas:
+        </label>
+        <input
+          type="text"
+          id="searchReservation"
+          className="form-control"
+          placeholder="Buscar por cliente, comanda, recibo, producto/moto o observaciones..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
-      {reservas.length === 0 ? (
+      {filteredReservas.length === 0 ? (
         <div className="alert alert-info text-center" role="alert">
-          No hay reservas registradas.
+          No hay reservas que coincidan con la búsqueda.
         </div>
       ) : (
         <>
@@ -87,7 +112,7 @@ const MyReservationsView = () => {
                 </tr>
               </thead>
               <tbody>
-                {reservas.map((reserva) => (
+                {filteredReservas.map((reserva) => (
                   <tr key={reserva._id}>
                     <td>{formatReservationDate(reserva.fecha)}</td>
                     <td>{reserva.motoId?.name || "N/A"}</td>
@@ -101,7 +126,7 @@ const MyReservationsView = () => {
             </table>
           </div>
           <div className="d-md-none">
-            {reservas.map((reserva) => (
+            {filteredReservas.map((reserva) => (
               <div className="card mb-3" key={reserva._id}>
                 <div className="card-body">
                   <h5 className="card-title">

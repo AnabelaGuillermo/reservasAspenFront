@@ -7,6 +7,7 @@ const AvailableView = () => {
   const [available, setAvailable] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [newQuantity, setNewQuantity] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const API_URL = import.meta.env.VITE_BACKEND_URL + "/api/v1/motos";
   const token = localStorage.getItem("token");
@@ -34,7 +35,7 @@ const AvailableView = () => {
     e.preventDefault();
 
     if (!name || !quantity) {
-      alert("Debes completar ambos campos");
+      Swal.fire("Atención", "Debes completar ambos campos", "warning");
       return;
     }
 
@@ -51,15 +52,17 @@ const AvailableView = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Error al cargar moto");
+        Swal.fire("Error", data.message || "Error al cargar moto", "error");
         return;
       }
 
       setName("");
       setQuantity("");
       fetchAvailable();
+      Swal.fire("Éxito", "Producto cargado correctamente", "success");
     } catch (error) {
       console.error("Error al cargar moto", error);
+      Swal.fire("Error", "Hubo un problema al cargar el producto", "error");
     }
   };
 
@@ -119,8 +122,12 @@ const AvailableView = () => {
   };
 
   const handleSaveQuantity = async (id) => {
-    if (isNaN(newQuantity) || newQuantity < 0) {
-      alert("Debe ingresar un número válido");
+    if (isNaN(newQuantity) || Number(newQuantity) < 0) {
+      Swal.fire(
+        "Atención",
+        "Debe ingresar una cantidad válida (número no negativo).",
+        "warning"
+      );
       return;
     }
 
@@ -137,15 +144,25 @@ const AvailableView = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Error al actualizar cantidad");
+        Swal.fire(
+          "Error",
+          data.message || "Error al actualizar cantidad",
+          "error"
+        );
         return;
       }
 
       setEditingId(null);
       setNewQuantity("");
       fetchAvailable();
+      Swal.fire("Éxito", "Cantidad actualizada correctamente", "success");
     } catch (error) {
       console.error("Error al actualizar cantidad", error);
+      Swal.fire(
+        "Error",
+        "Hubo un problema al actualizar la cantidad.",
+        "error"
+      );
     }
   };
 
@@ -154,9 +171,18 @@ const AvailableView = () => {
     setNewQuantity("");
   };
 
+  const filteredAvailable = available.filter((moto) =>
+    moto.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalFilteredQuantity = filteredAvailable.reduce(
+    (sum, moto) => sum + moto.quantity,
+    0
+  );
+
   return (
-    <div className="container py-4">
-      <h3 className="text-center mb-4">CARGAR DISPONIBLE</h3>
+    <div className="container py-4 mt-4">
+      <h2 className="text-center mb-4">CARGAR DISPONIBLE</h2>
 
       <form onSubmit={handleSubmit} className="p-4 mb-5 bg-dark text-white">
         <div className="row align-items-end">
@@ -197,9 +223,22 @@ const AvailableView = () => {
         </div>
       </form>
 
-      <hr />
+      <hr className="my-4 mb-5" />
 
-      <h4 className="text-center mb-3">DISPONIBLE</h4>
+      <h3 className="text-center mb-3">DISPONIBLE</h3>
+      <div className="mb-3">
+        <label htmlFor="searchProduct" className="form-label">
+          Buscar Producto / Moto:
+        </label>
+        <input
+          type="text"
+          id="searchProduct"
+          className="form-control"
+          placeholder="Escribe para buscar por nombre..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
       <div className="table-responsive">
         <table className="table table-striped">
           <thead>
@@ -209,10 +248,9 @@ const AvailableView = () => {
               <th className="text-center bg-dark text-white">ACCIONES</th>
             </tr>
           </thead>
-
           <tbody>
-            {available &&
-              available.map((moto) => (
+            {filteredAvailable.length > 0 ? (
+              filteredAvailable.map((moto) => (
                 <tr key={moto._id}>
                   <td>{moto.name}</td>
                   <td className="text-center">
@@ -263,16 +301,20 @@ const AvailableView = () => {
                     )}
                   </td>
                 </tr>
-              ))}
-            {available && available.length === 0 && (
+              ))
+            ) : (
               <tr>
                 <td colSpan="3" className="text-center">
-                  No hay disponibles
+                  No hay productos que coincidan con la búsqueda.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      <div className="total-available-summary mt-3 p-3 bg-light rounded text-center">
+        <h4>Total de Unidades Disponibles: {totalFilteredQuantity}</h4>
       </div>
     </div>
   );

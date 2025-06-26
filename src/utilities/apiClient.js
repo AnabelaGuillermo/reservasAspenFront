@@ -5,7 +5,7 @@ const originalFetch = window.fetch;
 export const setupGlobalFetchInterceptor = (timeout = 10000) => {
   window.fetch = async (...args) => {
     let [resource, config] = args;
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const headers = new Headers(config?.headers || {});
 
     if (token && !headers.has('Authorization')) {

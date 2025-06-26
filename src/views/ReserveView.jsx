@@ -19,10 +19,10 @@ const ReserveView = () => {
   const API_URL_MOTOS = import.meta.env.VITE_BACKEND_URL + "/api/v1/motos";
   const API_URL_RESERVAS =
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
   useEffect(() => {
-    const userInfo = localStorage.getItem("user");
+    const userInfo = sessionStorage.getItem("user");
     if (userInfo) {
       try {
         const user = JSON.parse(userInfo);
@@ -37,7 +37,7 @@ const ReserveView = () => {
           });
         }
       } catch (e) {
-        console.error("Error parsing user info from localStorage", e);
+        console.error("Error parsing user info from sessionStorage", e);
         Swal.fire({
           icon: "error",
           title: "Error de Sesión",
@@ -45,7 +45,7 @@ const ReserveView = () => {
         });
       }
     } else {
-      console.warn("No user info found in localStorage.");
+      console.warn("No user info found in sessionStorage.");
     }
 
     fetchAvailableMotos();

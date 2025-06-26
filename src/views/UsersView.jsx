@@ -20,16 +20,16 @@ const UsersView = () => {
   const [error, setError] = useState(null);
 
   const getAuthToken = () => {
-    return localStorage.getItem("token");
+    return sessionStorage.getItem("token");
   };
 
-  const getLoggedInUserFromLocalStorage = () => {
-    const userString = localStorage.getItem("user");
+  const getLoggedInUserFromsessionStorage = () => {
+    const userString = sessionStorage.getItem("user");
     if (userString) {
       try {
         return JSON.parse(userString);
       } catch (e) {
-        console.error("Error al parsear el objeto 'user' de localStorage:", e);
+        console.error("Error al parsear el objeto 'user' de sessionStorage:", e);
         return null;
       }
     }
@@ -47,12 +47,12 @@ const UsersView = () => {
         return;
       }
 
-      const loggedInUser = getLoggedInUserFromLocalStorage();
+      const loggedInUser = getLoggedInUserFromsessionStorage();
       if (loggedInUser) {
         setCurrentUser(loggedInUser);
       } else {
         console.warn(
-          "No se encontró el objeto 'user' en localStorage. El perfil no se mostrará."
+          "No se encontró el objeto 'user' en sessionStorage. El perfil no se mostrará."
         );
       }
 

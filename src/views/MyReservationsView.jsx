@@ -9,7 +9,7 @@ const MyReservationsView = () => {
 
   const API_URL_RESERVAS =
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
   const fetchReservas = async () => {
     setLoading(true);

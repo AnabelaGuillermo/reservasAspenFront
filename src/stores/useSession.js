@@ -5,8 +5,8 @@ export const useSession = create((set) => ({
   isLoggedIn: false,
 
   initializeSession: () => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
+    const storedUser = sessionStorage.getItem("user");
+    const storedToken = sessionStorage.getItem("token");
 
     if (storedToken) {
       const parsedUser = storedUser ? JSON.parse(storedUser) : null;
@@ -17,14 +17,14 @@ export const useSession = create((set) => ({
   },
 
   login: (userData, token) => {
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", token);
+    sessionStorage.setItem("user", JSON.stringify(userData));
+    sessionStorage.setItem("token", token);
     set({ user: userData, isLoggedIn: true });
   },
 
   logout: () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
     set({ user: null, isLoggedIn: false });
   },
 }));

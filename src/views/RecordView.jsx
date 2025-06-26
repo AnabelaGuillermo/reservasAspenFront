@@ -7,7 +7,7 @@ const API_URL_ACTIVIDADES = `${API_URL_BASE}/api/v1/actividades`;
 
 const RecordView = () => {
   const [historial, setHistorial] = useState([]);
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   const user = token ? decodeJWT(token) : null;
   const isAdmin = user ? user.isAdmin : false;
 

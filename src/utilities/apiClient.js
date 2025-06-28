@@ -32,8 +32,11 @@ export const setupGlobalFetchInterceptor = (timeout = 10000) => {
 
           if (window.location.pathname !== "/") {
             window.location.href = "/";
+          } else {
           }
-          window.location.reload();
+          const error = new Error(errorData.message || `Error HTTP: ${response.status}`);
+          error.status = response.status;
+          throw error;
         }
 
         const error = new Error(errorData.message || `Error HTTP: ${response.status}`);
@@ -49,10 +52,9 @@ export const setupGlobalFetchInterceptor = (timeout = 10000) => {
         console.error("Global Fetch Interceptor: La petición excedió el tiempo límite (timeout).", error);
         const { logout } = useSession.getState();
         logout();
-        if (window.location.pathname !== "/") {
-          window.location.href = "/";
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
         }
-        window.location.reload();
         throw new Error('Petición cancelada por timeout.');
       } else {
         console.error("Global Fetch Interceptor: Error de red o en la petición:", error);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { useSession } from "../stores/useSession";
@@ -34,8 +34,10 @@ const LoginView = () => {
   } = useForm();
   const navigate = useNavigate();
   const { login } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data) => {
+    setIsLoading(true);
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/login`,
@@ -83,6 +85,8 @@ const LoginView = () => {
     } catch (error) {
       console.error("Error de red:", error);
       alert("Error de red al iniciar sesión");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,6 +112,7 @@ const LoginView = () => {
                   {...register("email", {
                     required: "El correo es obligatorio",
                   })}
+                  disabled={isLoading}
                 />
                 {errors.email && (
                   <div className="invalid-feedback">{errors.email.message}</div>
@@ -124,6 +129,7 @@ const LoginView = () => {
                   {...register("password", {
                     required: "La contraseña es obligatoria",
                   })}
+                  disabled={isLoading}
                 />
                 {errors.password && (
                   <div className="invalid-feedback">
@@ -131,8 +137,20 @@ const LoginView = () => {
                   </div>
                 )}
               </div>
-              <button type="submit" className="btn btn-danger w-100 mt-2">
-                INICIAR SESIÓN
+              <button
+                type="submit"
+                className="btn btn-danger w-100 mt-2"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                ) : (
+                  "INICIAR SESIÓN"
+                )}
               </button>
             </form>
           </div>

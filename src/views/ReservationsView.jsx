@@ -28,7 +28,7 @@ const ReservationsView = () => {
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
   const API_URL_USERS = import.meta.env.VITE_BACKEND_URL + "/api/v1/users";
   const API_URL_MOTOS = import.meta.env.VITE_BACKEND_URL + "/api/v1/motos";
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   const fetchReservations = async () => {
     setLoading(true);

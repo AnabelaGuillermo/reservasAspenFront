@@ -7,13 +7,13 @@ const MyProfileView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const getLoggedInUserFromsessionStorage = () => {
-    const userString = sessionStorage.getItem("user");
+  const getLoggedInUserFromlocalStorage = () => {
+    const userString = localStorage.getItem("user");
     if (userString) {
       try {
         return JSON.parse(userString);
       } catch (e) {
-        console.error("Error al parsear el objeto 'user' de sessionStorage:", e);
+        console.error("Error al parsear el objeto 'user' de localStorage:", e);
         return null;
       }
     }
@@ -23,7 +23,7 @@ const MyProfileView = () => {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    const loggedInUser = getLoggedInUserFromsessionStorage();
+    const loggedInUser = getLoggedInUserFromlocalStorage();
     if (loggedInUser) {
       setCurrentUser(loggedInUser);
     } else {

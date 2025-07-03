@@ -18,7 +18,7 @@ const DeliverView = () => {
   const [selectedSellerEntregados, setSelectedSellerEntregados] = useState("");
   const [searchTermEntregados, setSearchTermEntregados] = useState("");
 
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const API_URL_RESERVAS =
     import.meta.env.VITE_BACKEND_URL + "/api/v1/reservas";
   const API_URL_USERS = import.meta.env.VITE_BACKEND_URL + "/api/v1/users";
@@ -80,7 +80,7 @@ const DeliverView = () => {
 
   useEffect(() => {
     const cargarEntregados = () => {
-      const storedEntregados = sessionStorage.getItem(LOCAL_STORAGE_KEY);
+      const storedEntregados = localStorage.getItem(LOCAL_STORAGE_KEY);
       let initialEntregados = [];
       if (storedEntregados) {
         initialEntregados = JSON.parse(storedEntregados).filter((entregado) => {
@@ -176,9 +176,9 @@ const DeliverView = () => {
             nuevaReservaEntregada,
           ]);
           const storedEntregados =
-            sessionStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
           const entregados = JSON.parse(storedEntregados);
-          sessionStorage.setItem(
+          localStorage.setItem(
             LOCAL_STORAGE_KEY,
             JSON.stringify([...entregados, nuevaReservaEntregada])
           );
@@ -230,9 +230,9 @@ const DeliverView = () => {
             prev.filter((entregado) => entregado._id !== reserva._id)
           );
           const storedEntregados =
-            sessionStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
           const entregados = JSON.parse(storedEntregados);
-          sessionStorage.setItem(
+          localStorage.setItem(
             LOCAL_STORAGE_KEY,
             JSON.stringify(entregados.filter((e) => e._id !== reserva._id))
           );
@@ -270,9 +270,9 @@ const DeliverView = () => {
             prev.filter((entregado) => entregado._id !== id)
           );
           const storedEntregados =
-            sessionStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
+            localStorage.getItem(LOCAL_STORAGE_KEY) || "[]";
           const entregados = JSON.parse(storedEntregados);
-          sessionStorage.setItem(
+          localStorage.setItem(
             LOCAL_STORAGE_KEY,
             JSON.stringify(entregados.filter((e) => e._id !== id))
           );

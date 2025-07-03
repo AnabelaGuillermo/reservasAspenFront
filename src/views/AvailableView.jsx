@@ -10,7 +10,7 @@ const AvailableView = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const API_URL = import.meta.env.VITE_BACKEND_URL + "/api/v1/motos";
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   const fetchAvailable = async () => {
     try {

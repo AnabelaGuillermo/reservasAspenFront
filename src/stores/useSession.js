@@ -1,20 +1,21 @@
 import { create } from "zustand";
+import { decodeJWT } from "../utilities/decodeJWT";
+
+let user = null;
+let isLoggedIn = false;
+
+const token = localStorage.getItem("token");
+if (token) {
+  const decodedPayload = decodeJWT(token);
+  if (decodedPayload) {
+    user = decodedPayload;
+    isLoggedIn = true;
+  }
+}
 
 export const useSession = create((set) => ({
-  user: null,
-  isLoggedIn: false,
-
-  initializeSession: () => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-
-    if (storedToken) {
-      const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-      set({ user: parsedUser, isLoggedIn: true });
-    } else {
-      set({ user: null, isLoggedIn: false });
-    }
-  },
+  user,
+  isLoggedIn,
 
   login: (userData, token) => {
     localStorage.setItem("user", JSON.stringify(userData));
